@@ -1,16 +1,59 @@
-# React + Vite
+# AgriSense — Agriculture Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AgriSense is a responsive, frontend-only agriculture management dashboard designed to help users manage crops, buyers, harvest orders, and farm information.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Dashboard with crop and order statistics
+- Crop management with CRUD operations
+- Buyer management with CNIC validation and image upload
+- Harvest order management and stock validation
+- Search, filters, and sorting
+- Browser localStorage persistence
+- Responsive interface for desktop and mobile
+- Weather integration, if enabled and verified in the project
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- Vite
+- JavaScript
+- Bootstrap
+- CSS
+- React Router
+- Recharts
+- Lucide React
+- Browser localStorage
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Clone the repository.
+2. Install dependencies:
+
+   `npm install`
+
+3. Start the development server:
+
+   `npm run dev`
+
+4. Open the local URL displayed in the terminal.
+
+## Production Build
+
+`npm run build`
+
+## Data Storage
+
+This project uses browser localStorage. It does not require a backend or database.
+
+## Screenshots
+
+Add screenshots of the dashboard, crops, buyers, and harvest orders in the `screenshots/` folder.
+
+## Author
+
+Anaya Sabtain
+
+## Internship
+
+U Devs — Batch 6 Agriculture Management System Task
