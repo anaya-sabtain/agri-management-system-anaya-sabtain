@@ -1,59 +1,164 @@
-# AgriSense — Agriculture Management System
+# 🌱 AgriSense — Agriculture Management System
 
-AgriSense is a responsive, frontend-only agriculture management dashboard designed to help users manage crops, buyers, harvest orders, and farm information.
+A responsive, frontend-based Agriculture Management System built with **React.js, Vite, Bootstrap, and JavaScript**. AgriSense provides a centralized dashboard to manage crops, buyers, harvest orders, and farm-related information.
 
-## Features
+## 📌 Project Overview
 
-- Dashboard with crop and order statistics
-- Crop management with CRUD operations
-- Buyer management with CNIC validation and image upload
-- Harvest order management and stock validation
-- Search, filters, and sorting
-- Browser localStorage persistence
-- Responsive interface for desktop and mobile
-- Weather integration, if enabled and verified in the project
+AgriSense is designed to simplify agricultural record management through an interactive dashboard. It helps users organize crop information, monitor crop health scores, manage buyer records, track harvest orders, and review farm statistics.
 
-## Tech Stack
+This project was developed as part of the **U Devs — Batch 6 Full Stack Development Internship Task**.
 
-- React
-- Vite
-- JavaScript
-- Bootstrap
-- CSS
-- React Router
-- Recharts
-- Lucide React
-- Browser localStorage
+## ✨ Features
 
-## Getting Started
+### 📊 Dashboard
+- Overview of total crops and active fields
+- Expected harvest and pending order statistics
+- Harvest production chart
+- Crop health indicators
+- Harvest schedule
 
-1. Clone the repository.
-2. Install dependencies:
+### 🌾 Crop Management
+- Add, view, edit, and delete crop records
+- Store crop name, field, planting date, and cutting date
+- Track expected and harvested quantities
+- Record crop health scores and statuses
+- Search, filter, and sort crop records
 
-   `npm install`
+### 👥 Buyer Management
+- Add, view, edit, and delete buyer records
+- Validate buyer names
+- Automatic CNIC formatting and duplicate checking
+- Image upload with file type and size validation
+- Image preview
+- Search buyers by name or CNIC
 
-3. Start the development server:
+### 📦 Harvest & Order Management
+- Create and manage harvest orders
+- Select crops and buyers from saved records
+- Validate order quantities against available stock
+- Track pending, completed, and cancelled orders
+- Search and filter orders
+- Preserve records after page refresh
 
-   `npm run dev`
+### 📱 Responsive Interface
+- Responsive dashboard layout
+- Navigation with React Router
+- Reusable components
+- Bootstrap-based styling
+- Responsive tables and cards
 
-4. Open the local URL displayed in the terminal.
+## 🛠️ Tech Stack
 
-## Production Build
+| Technology | Purpose |
+|---|---|
+| React.js | Component-based user interface |
+| Vite | Development server and build tool |
+| JavaScript | Application logic |
+| HTML5 | Page structure |
+| CSS3 | Custom styling |
+| Bootstrap | Responsive layout and UI styling |
+| React Router | Client-side navigation |
+| Recharts | Dashboard charts |
+| Lucide React | Icons |
+| Browser localStorage | Client-side data persistence |
+| Git & GitHub | Version control and source code hosting |
 
-`npm run build`
+## 📂 Project Structure
 
-## Data Storage
+```text
+agri-management-system/
+├── public/
+├── src/
+│   ├── components/
+│   │   ├── common/
+│   │   └── dashboard/
+│   ├── data/
+│   │   └── dataModels.js
+│   ├── pages/
+│   │   ├── Dashboard.jsx
+│   │   ├── Crops.jsx
+│   │   ├── HarvestOrders.jsx
+│   │   ├── Buyers.jsx
+│   │   └── NotFound.jsx
+│   ├── services/
+│   │   ├── storageService.js
+│   │   ├── orderUtils.js
+│   │   └── dashboardStats.js
+│   ├── styles/
+│   │   └── custom.css
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
+├── .gitignore
+├── index.html
+├── package.json
+├── package-lock.json
+├── vite.config.js
+└── README.md
+```
 
-This project uses browser localStorage. It does not require a backend or database.
 
-## Screenshots
+## 💾 Data Storage
 
-Add screenshots of the dashboard, crops, buyers, and harvest orders in the `screenshots/` folder.
+AgriSense uses browser `localStorage` to store crop records, buyer records, and harvest orders.
 
-## Author
+- No backend server is required.
+- No database setup is required.
+- Data persists in the same browser until it is cleared.
+- Data is browser-specific and is not automatically synchronized across users or devices.
 
-Anaya Sabtain
+**Important:** This project is intended as a frontend demonstration. Browser localStorage is not suitable for securely storing sensitive real-world buyer information.
 
-## Internship
+## 🌦️ Weather Integration
 
-U Devs — Batch 6 Agriculture Management System Task
+The project includes a weather integration workflow using a free weather API, if enabled in the current build.
+
+Weather data requires an internet connection. Availability and displayed weather fields depend on the implemented API integration.
+
+## 🖼️ Screenshots
+
+
+1. Dashboard
+2. Crop Management
+3. Buyer Management
+4. Harvest & Order Management
+5. Responsive mobile layout
+
+## 🔮 Future Improvements
+
+- Advanced crop health analytics
+- Automated farm alerts and notifications
+- CSV export for buyer and order records
+- Extended harvest and sales analytics
+- Improved weather forecasts
+- Automated unit and component testing
+
+## 🎯 Learning Outcomes
+
+Through this project, I practiced:
+
+- Building reusable React components
+- Managing application state with React hooks
+- Implementing CRUD operations
+- Validating forms and user input
+- Working with browser localStorage
+- Creating charts and dashboard statistics
+- Implementing client-side routing
+- Building responsive interfaces with Bootstrap
+- Managing source code with Git and GitHub
+
+## 👩‍💻 Author
+
+**Anaya Sabtain**
+
+Frontend Development | React.js | JavaScript
+
+- Live Link: https://agri-management-system-anaya-sabtai.vercel.app/
+- LinkedIn: https://www.linkedin.com/in/anayasabtain/
+
+## 🏢 Internship
+
+**U Devs — Batch 6**
+
+Full Stack Development Internship Task
+
