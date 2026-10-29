@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
+import { useDispatch, useSelector } from 'react-redux'
 import {
   Sprout,
   LandPlot,
@@ -16,10 +17,17 @@ import CropHealthDistributionChart from '../components/dashboard/CropHealthDistr
 import StockSummaryWidget from '../components/dashboard/StockSummaryWidget'
 import FarmAlertsBanner from '../components/dashboard/FarmAlertsBanner'
 
+import {
+  fetchWeather,
+  selectWeather,
+  selectWeatherLoading,
+  selectWeatherError,
+} from '../store/weatherSlice'
+import { selectAllTasks } from '../store/tasksSlice'
+
 import { STORAGE_KEYS } from "../data/dataModels";
 import { getAll } from "../services/storageService";
 import { getDashboardStats } from "../services/dashboardStats";
-import { getCurrentWeather } from "../services/weatherService";
 import { getFarmAlerts } from "../services/alertService";
 
 export default function Dashboard() {
@@ -35,38 +43,24 @@ export default function Dashboard() {
 
   const [statsError, setStatsError] = useState("");
 
-  const [weather, setWeather] = useState(null);
-  const [weatherLoading, setWeatherLoading] = useState(true);
-  const [weatherError, setWeatherError] = useState("");
+  const dispatch = useDispatch()
 
-  const loadWeather = useCallback(async () => {
-    setWeatherLoading(true);
-    setWeatherError("");
-
-    try {
-      const result = await getCurrentWeather();
-      setWeather(result);
-    } catch (error) {
-      setWeatherError(
-        error instanceof Error
-          ? error.message
-          : "Unable to load current weather."
-      );
-    } finally {
-      setWeatherLoading(false);
-    }
-  }, []);
+  const weather = useSelector(selectWeather)
+  const weatherLoading = useSelector(selectWeatherLoading)
+  const weatherError = useSelector(selectWeatherError)
+  const tasks = useSelector(selectAllTasks)
 
   useEffect(() => {
-    loadWeather();
+    dispatch(fetchWeather())
 
-    // Automatic weather refresh every 15 minutes (900,000 ms)
-    const timer = setInterval(() => {
-      loadWeather();
-    }, 15 * 60 * 1000);
+    const refreshInterval = setInterval(() => {
+      dispatch(fetchWeather())
+    }, 15 * 60 * 1000)
 
-    return () => clearInterval(timer);
-  }, [loadWeather]);
+    return () => {
+      clearInterval(refreshInterval)
+    }
+  }, [dispatch])
 
   const refreshData = useCallback(() => {
     try {
@@ -93,6 +87,9 @@ export default function Dashboard() {
         "agri_crops",
         "agri_orders",
         "agri_buyers",
+        "agri_tasks",
+        "agri_expenses",
+        "agri_inventory",
       ];
 
       if (event.key === null || relevantKeys.includes(event.key)) {
@@ -110,7 +107,7 @@ export default function Dashboard() {
   // Compute live smart alerts
   const farmAlerts = useMemo(() => {
     return getFarmAlerts(weather);
-  }, [crops, orders, weather]);
+  }, [crops, orders, tasks, weather]);
 
   const statItems = [
     {
@@ -184,8 +181,9 @@ export default function Dashboard() {
             <WeatherCard
               weather={weather}
               loading={weatherLoading}
-              error={weatherError}
-              onRetry={loadWeather}
+              error={weatherError || ''}
+              onRetry={() => dispatch(fetchWeather())}
+              location="Lahore, Pakistan"
             />
           </div>
 

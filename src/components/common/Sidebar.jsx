@@ -5,6 +5,11 @@ import {
   Wheat,
   ClipboardList,
   Users,
+  Wallet,
+  ChartNoAxesCombined,
+  Package,
+  BarChart3,
+  Activity,
   X,
 } from 'lucide-react'
 
@@ -13,6 +18,12 @@ const navigation = [
   { label: 'Crops', path: '/crops', Icon: Sprout },
   { label: 'Harvest & Orders', path: '/harvest-orders', Icon: ClipboardList },
   { label: 'Buyers', path: '/buyers', Icon: Users },
+  { label: 'Farm Tasks', path: '/farm-tasks', Icon: ClipboardList },
+  { label: 'Expenses', path: '/expenses', Icon: Wallet },
+  { label: 'Profit & Loss', path: '/profit-loss', Icon: ChartNoAxesCombined },
+  { label: 'Inputs Inventory', path: '/inventory', Icon: Package },
+  { label: 'Reports', path: '/reports', Icon: BarChart3 },
+  { label: 'Activity Log', path: '/activity-log', Icon: Activity },
 ]
 
 export default function Sidebar({ open, onClose }) {

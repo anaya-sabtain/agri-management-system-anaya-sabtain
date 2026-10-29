@@ -34,11 +34,22 @@ import { getAvailableStock } from "../services/orderUtils";
 import ConfirmModal from "../components/common/ConfirmModal";
 import ToastNotification from "../components/common/ToastNotification";
 import ImageZoomModal from "../components/common/ImageZoomModal";
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  selectAllOrders,
+  ordersLoaded,
+  orderAdded,
+  orderUpdated,
+  orderDeleted,
+} from '../store/ordersSlice'
+import { selectUserRole } from '../store/authSlice'
+import { activityAdded } from '../store/activitySlice'
 
 const initialForm = {
   buyerId: "",
   cropId: "",
   quantityKg: "",
+  pricePerKg: "",
   saleDate: "",
   status: "pending",
 };
@@ -56,7 +67,10 @@ function getStatusBadge(status) {
 }
 
 export default function HarvestOrders() {
-  const [orders, setOrders] = useState([]);
+  const dispatch = useDispatch()
+  const orders = useSelector(selectAllOrders)
+  const role = useSelector(selectUserRole)
+  const isAdmin = role === 'Admin'
   const [buyers, setBuyers] = useState([]);
   const [crops, setCrops] = useState([]);
   const [form, setForm] = useState(initialForm);
@@ -106,7 +120,7 @@ export default function HarvestOrders() {
 
   function loadData() {
     try {
-      setOrders(getAll(STORAGE_KEYS.ORDERS));
+      dispatch(ordersLoaded(getAll(STORAGE_KEYS.ORDERS)));
       setBuyers(getAll(STORAGE_KEYS.BUYERS));
       setCrops(getAll(STORAGE_KEYS.CROPS));
       setError("");
@@ -215,10 +229,12 @@ export default function HarvestOrders() {
   }
 
   function startEdit(order) {
+    if (!isAdmin) return;
     setForm({
       buyerId: order.buyerId,
       cropId: order.cropId,
       quantityKg: String(order.quantityKg),
+      pricePerKg: String(order.pricePerKg ?? ""),
       saleDate: order.saleDate,
       status: order.status,
     });
@@ -235,6 +251,17 @@ export default function HarvestOrders() {
     setNotice("");
 
     const quantity = Number(form.quantityKg);
+    const pricePerKg = Number(form.pricePerKg);
+
+    if (
+      form.pricePerKg === "" ||
+      !Number.isFinite(pricePerKg) ||
+      pricePerKg <= 0
+    ) {
+      setError("Price per kg must be greater than zero.");
+      return;
+    }
+
     const crop = cropById.get(form.cropId);
     const buyer = buyerById.get(form.buyerId);
 
@@ -275,24 +302,49 @@ export default function HarvestOrders() {
       buyerId: form.buyerId,
       cropId: form.cropId,
       quantityKg: quantity,
+      pricePerKg: pricePerKg,
       saleDate: form.saleDate,
       status: form.status,
     };
 
+    if (editingId && !isAdmin) {
+      setError("Only administrators are permitted to edit orders.");
+      return;
+    }
+
     try {
       if (editingId) {
-        updateRecord(STORAGE_KEYS.ORDERS, editingId, orderData);
+        dispatch(
+          orderUpdated({
+            id: editingId,
+            changes: orderData,
+          })
+        );
+
+        dispatch(
+          activityAdded({
+            action: "UPDATE",
+            entity: "Order",
+            entityId: editingId,
+            description: `Updated order for ${buyer.fullName}: ${crop.name}, ${quantity} kg`,
+          })
+        );
+
         setNotice("Order successfully updated.");
       } else {
-        createRecord(STORAGE_KEYS.ORDERS, {
-          id: crypto.randomUUID(),
-          ...orderData,
-          createdAt: new Date().toISOString(),
-        });
+        dispatch(orderAdded(orderData));
+
+        dispatch(
+          activityAdded({
+            action: "CREATE",
+            entity: "Order",
+            description: `Created order for ${buyer.fullName}: ${crop.name}, ${quantity} kg`,
+          })
+        );
+
         setNotice("Order successfully created.");
       }
 
-      loadData();
       resetForm();
     } catch (err) {
       setError(err.message || "Could not save order.");
@@ -300,15 +352,29 @@ export default function HarvestOrders() {
   }
 
   function handleDelete(order) {
+    if (!isAdmin) return;
     setDeleteTargetOrder(order);
   }
 
   function confirmDeleteOrder() {
+    if (!isAdmin) return;
     if (!deleteTargetOrder) return;
 
     try {
-      deleteRecord(STORAGE_KEYS.ORDERS, deleteTargetOrder.id);
-      loadData();
+      const deletedBuyer = buyerById.get(deleteTargetOrder.buyerId);
+      const deletedCrop = cropById.get(deleteTargetOrder.cropId);
+
+      dispatch(orderDeleted(deleteTargetOrder.id));
+
+      dispatch(
+        activityAdded({
+          action: "DELETE",
+          entity: "Order",
+          entityId: deleteTargetOrder.id,
+          description: `Deleted order for ${deletedBuyer?.fullName || "Unknown buyer"}: ${deletedCrop?.name || "Unknown crop"}, ${deleteTargetOrder.quantityKg} kg`,
+        })
+      );
+
       setNotice("Order successfully deleted.");
       setError("");
     } catch (err) {
@@ -541,6 +607,25 @@ export default function HarvestOrders() {
                 </div>
 
                 <div className="col-12 col-md-4">
+                  <label htmlFor="order-price" className="form-label fw-semibold">
+                    Price per kg (PKR)
+                  </label>
+
+                  <input
+                    id="order-price"
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    className="form-control form-control-lg fs-6"
+                    name="pricePerKg"
+                    value={form.pricePerKg}
+                    onChange={updateForm}
+                    placeholder="e.g. 150"
+                    required
+                  />
+                </div>
+
+                <div className="col-12 col-md-4">
                   <label htmlFor="order-date" className="form-label fw-semibold">
                     Transaction / Sale Date
                   </label>
@@ -749,22 +834,26 @@ export default function HarvestOrders() {
                       </div>
 
                       {/* Actions */}
-                      <div className="d-flex justify-content-end gap-2 pt-2 border-top">
-                        <button
-                          className="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
-                          onClick={() => startEdit(order)}
-                        >
-                          <Pencil size={14} />
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
-                          onClick={() => handleDelete(order)}
-                        >
-                          <Trash2 size={14} />
-                          Delete
-                        </button>
-                      </div>
+                      {isAdmin && (
+                        <div className="d-flex justify-content-end gap-2 pt-2 border-top">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
+                            onClick={() => startEdit(order)}
+                          >
+                            <Pencil size={14} />
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
+                            onClick={() => handleDelete(order)}
+                          >
+                            <Trash2 size={14} />
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -887,22 +976,28 @@ export default function HarvestOrders() {
                           </span>
                         </td>
                         <td>
-                          <div className="d-flex justify-content-end gap-2">
-                            <button
-                              className="btn btn-sm btn-outline-success"
-                              aria-label="Edit order"
-                              onClick={() => startEdit(order)}
-                            >
-                              <Pencil size={15} />
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-danger"
-                              aria-label="Delete order"
-                              onClick={() => handleDelete(order)}
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
+                          {isAdmin ? (
+                            <div className="d-flex justify-content-end gap-2">
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-success"
+                                aria-label="Edit order"
+                                onClick={() => startEdit(order)}
+                              >
+                                <Pencil size={15} />
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger"
+                                aria-label="Delete order"
+                                onClick={() => handleDelete(order)}
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-muted small">View Only</span>
+                          )}
                         </td>
                       </tr>
                     );

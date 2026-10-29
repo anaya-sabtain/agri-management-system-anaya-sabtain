@@ -29,6 +29,16 @@ import {
 } from "../services/storageService";
 import ConfirmModal from "../components/common/ConfirmModal";
 import ToastNotification from "../components/common/ToastNotification";
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  selectAllCrops,
+  cropsLoaded,
+  cropAdded,
+  cropUpdated,
+  cropDeleted,
+} from '../store/cropsSlice'
+import { selectUserRole } from '../store/authSlice'
+import { activityAdded } from '../store/activitySlice'
 
 const initialForm = {
   name: "",
@@ -67,7 +77,10 @@ function getStatusBadge(status) {
 }
 
 export default function Crops() {
-  const [crops, setCrops] = useState([]);
+  const dispatch = useDispatch()
+  const crops = useSelector(selectAllCrops)
+  const role = useSelector(selectUserRole)
+  const isAdmin = role === 'Admin'
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
@@ -100,10 +113,11 @@ export default function Crops() {
 
   function loadCrops() {
     try {
-      setCrops(getAll(STORAGE_KEYS.CROPS));
-      setError("");
+      const savedCrops = getAll(STORAGE_KEYS.CROPS)
+      dispatch(cropsLoaded(savedCrops))
+      setError('')
     } catch (err) {
-      setError(err.message || "Could not load crops.");
+      setError(err.message || 'Could not load crops.')
     }
   }
 
@@ -171,6 +185,7 @@ export default function Crops() {
   }
 
   function startEdit(crop) {
+    if (!isAdmin) return;
     setForm({
       name: crop.name || "",
       field: crop.field || "",
@@ -257,33 +272,74 @@ export default function Crops() {
       status: form.status,
     };
 
+    if (editingId && !isAdmin) {
+      setError("Only administrators are permitted to edit crop records.");
+      return;
+    }
+
     try {
       if (editingId) {
-        updateRecord(STORAGE_KEYS.CROPS, editingId, cropData);
-        setNotice("Crop successfully updated.");
+        dispatch(
+          cropUpdated({
+            id: editingId,
+            changes: cropData,
+          }),
+        )
+
+        dispatch(
+          activityAdded({
+            action: 'UPDATE',
+            entity: 'Crop',
+            entityId: editingId,
+            description: `Updated crop: ${cropData.name} in field ${cropData.field}`,
+          })
+        )
+
+        setNotice('Crop successfully updated.')
       } else {
-        const newCrop = createCrop(cropData);
-        createRecord(STORAGE_KEYS.CROPS, newCrop);
-        setNotice("Crop successfully added.");
+        dispatch(cropAdded(cropData))
+
+        dispatch(
+          activityAdded({
+            action: 'CREATE',
+            entity: 'Crop',
+            description: `Added crop: ${cropData.name} in field ${cropData.field}`,
+          })
+        )
+
+        setNotice('Crop successfully added.')
       }
 
-      loadCrops();
-      resetForm();
+      resetForm()
     } catch (err) {
-      setError(err.message || "Could not save crop.");
+      setError(err.message || 'Could not save crop.')
     }
   }
 
   function handleDelete(crop) {
+    if (!isAdmin) return;
     setDeleteTargetCrop(crop);
   }
 
   function confirmDeleteCrop() {
+    if (!isAdmin) {
+      return;
+    }
+
     if (!deleteTargetCrop) return;
 
     try {
-      deleteRecord(STORAGE_KEYS.CROPS, deleteTargetCrop.id);
-      loadCrops();
+      dispatch(cropDeleted(deleteTargetCrop.id));
+
+      dispatch(
+        activityAdded({
+          action: 'DELETE',
+          entity: 'Crop',
+          entityId: deleteTargetCrop.id,
+          description: `Deleted crop: ${deleteTargetCrop.name} from field ${deleteTargetCrop.field}`,
+        })
+      )
+
       setNotice(`Crop "${deleteTargetCrop.name}" successfully deleted.`);
       setError("");
     } catch (err) {
@@ -718,22 +774,26 @@ export default function Crops() {
                       </div>
 
                       {/* Card Actions */}
-                      <div className="d-flex justify-content-end gap-2 pt-2 border-top">
-                        <button
-                          className="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
-                          onClick={() => startEdit(crop)}
-                        >
-                          <Pencil size={14} />
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
-                          onClick={() => handleDelete(crop)}
-                        >
-                          <Trash2 size={14} />
-                          Delete
-                        </button>
-                      </div>
+                      {isAdmin && (
+                        <div className="d-flex justify-content-end gap-2 pt-2 border-top">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
+                            onClick={() => startEdit(crop)}
+                          >
+                            <Pencil size={14} />
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
+                            onClick={() => handleDelete(crop)}
+                          >
+                            <Trash2 size={14} />
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -843,24 +903,30 @@ export default function Crops() {
                           </span>
                         </td>
                         <td>
-                          <div className="d-flex justify-content-end gap-2">
-                            <button
-                              className="btn btn-sm btn-outline-success"
-                              aria-label={`Edit ${crop.name}`}
-                              title="Edit crop"
-                              onClick={() => startEdit(crop)}
-                            >
-                              <Pencil size={15} />
-                            </button>
-                            <button
-                              className="btn btn-sm btn-outline-danger"
-                              aria-label={`Delete ${crop.name}`}
-                              title="Delete crop"
-                              onClick={() => handleDelete(crop)}
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
+                          {isAdmin ? (
+                            <div className="d-flex justify-content-end gap-2">
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-success"
+                                aria-label={`Edit ${crop.name}`}
+                                title="Edit crop"
+                                onClick={() => startEdit(crop)}
+                              >
+                                <Pencil size={15} />
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger"
+                                aria-label={`Delete ${crop.name}`}
+                                title="Delete crop"
+                                onClick={() => handleDelete(crop)}
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-muted small">View Only</span>
+                          )}
                         </td>
                       </tr>
                     );

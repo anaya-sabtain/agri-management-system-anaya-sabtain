@@ -20,7 +20,7 @@ import {
   ArrowDown,
 } from "lucide-react";
 
-import { createBuyer, STORAGE_KEYS } from "../data/dataModels";
+import { STORAGE_KEYS } from "../data/dataModels";
 import { exportToCSV } from "../services/csvExport";
 import {
   getAll,
@@ -31,6 +31,16 @@ import {
 import ConfirmModal from "../components/common/ConfirmModal";
 import ToastNotification from "../components/common/ToastNotification";
 import ImageZoomModal from "../components/common/ImageZoomModal";
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  selectAllBuyers,
+  buyersLoaded,
+  buyerAdded,
+  buyerUpdated,
+  buyerDeleted,
+} from '../store/buyersSlice'
+import { selectUserRole } from '../store/authSlice'
+import { activityAdded } from '../store/activitySlice'
 
 const initialForm = {
   fullName: "",
@@ -52,7 +62,10 @@ function normalizeCnic(value) {
 }
 
 export default function Buyers() {
-  const [buyers, setBuyers] = useState([]);
+  const dispatch = useDispatch()
+  const buyers = useSelector(selectAllBuyers)
+  const role = useSelector(selectUserRole)
+  const isAdmin = role === 'Admin'
   const [orders, setOrders] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
@@ -100,7 +113,7 @@ export default function Buyers() {
 
   function loadData() {
     try {
-      setBuyers(getAll(STORAGE_KEYS.BUYERS));
+      dispatch(buyersLoaded(getAll(STORAGE_KEYS.BUYERS)))
       setOrders(getAll(STORAGE_KEYS.ORDERS));
       setError("");
     } catch (err) {
@@ -222,6 +235,7 @@ export default function Buyers() {
   }
 
   function startEdit(buyer) {
+    if (!isAdmin) return;
     setForm({
       fullName: buyer.fullName || "",
       cnic: buyer.cnic || "",
@@ -271,17 +285,44 @@ export default function Buyers() {
       photoDataUrl: form.photoDataUrl || null,
     };
 
+    if (editingId && !isAdmin) {
+      setError("Only administrators are permitted to edit buyer records.");
+      return;
+    }
+
     try {
       if (editingId) {
-        updateRecord(STORAGE_KEYS.BUYERS, editingId, buyerData);
+        dispatch(
+          buyerUpdated({
+            id: editingId,
+            changes: buyerData,
+          })
+        );
+
+        dispatch(
+          activityAdded({
+            action: "UPDATE",
+            entity: "Buyer",
+            entityId: editingId,
+            description: `Updated buyer: ${buyerData.fullName}`,
+          })
+        );
+
         setNotice("Buyer successfully updated.");
       } else {
-        const newBuyer = createBuyer(buyerData);
-        createRecord(STORAGE_KEYS.BUYERS, newBuyer);
+        dispatch(buyerAdded(buyerData));
+
+        dispatch(
+          activityAdded({
+            action: "CREATE",
+            entity: "Buyer",
+            description: `Added buyer: ${buyerData.fullName}`,
+          })
+        );
+
         setNotice("Buyer successfully added.");
       }
 
-      loadData();
       resetForm();
     } catch (err) {
       setError(err.message || "Could not save buyer.");
@@ -289,16 +330,29 @@ export default function Buyers() {
   }
 
   function handleDelete(buyer) {
+    if (!isAdmin) return;
     setDeleteTargetBuyer(buyer);
   }
 
   function confirmDeleteBuyer() {
+    if (!isAdmin) return;
     if (!deleteTargetBuyer) return;
 
     try {
-      deleteRecord(STORAGE_KEYS.BUYERS, deleteTargetBuyer.id);
-      loadData();
-      setNotice(`Buyer "${deleteTargetBuyer.fullName}" successfully deleted.`);
+      dispatch(buyerDeleted(deleteTargetBuyer.id));
+
+      dispatch(
+        activityAdded({
+          action: "DELETE",
+          entity: "Buyer",
+          entityId: deleteTargetBuyer.id,
+          description: `Deleted buyer: ${deleteTargetBuyer.fullName}`,
+        })
+      );
+
+      setNotice(
+        `Buyer "${deleteTargetBuyer.fullName}" successfully deleted.`
+      );
       setError("");
     } catch (err) {
       setError(err.message || "Could not delete buyer.");
@@ -612,14 +666,14 @@ export default function Buyers() {
                           width="56"
                           height="56"
                           className="rounded-circle shadow-sm"
-                          style={{ objectFit: "cover", cursor: "zoom-in" }}
+                          style={{ objectFit: "cover", cursor: "zoom-in", width: 56, height: 56, minWidth: 56, minHeight: 56, aspectRatio: '1 / 1', flexShrink: 0 }}
                           title="Click to zoom photo"
                           onClick={() => openZoom(buyer)}
                         />
                       ) : (
                         <div
                           className="buyer-avatar-placeholder"
-                          style={{ cursor: "pointer" }}
+                          style={{ cursor: "pointer", width: 56, height: 56, minWidth: 56, minHeight: 56, aspectRatio: '1 / 1', flexShrink: 0 }}
                           title="Click to view details"
                           onClick={() => openZoom(buyer)}
                         >
@@ -650,24 +704,28 @@ export default function Buyers() {
                         {buyer.createdAt ? new Date(buyer.createdAt).toLocaleDateString() : "Active"}
                       </span>
 
-                      <div className="d-flex gap-1">
-                        <button
-                          className="btn btn-sm btn-outline-success p-1 px-2"
-                          aria-label={`Edit ${buyer.fullName}`}
-                          title="Edit Profile"
-                          onClick={() => startEdit(buyer)}
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-danger p-1 px-2"
-                          aria-label={`Delete ${buyer.fullName}`}
-                          title="Delete Profile"
-                          onClick={() => handleDelete(buyer)}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                      {isAdmin && (
+                        <div className="d-flex gap-1">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-success p-1 px-2"
+                            aria-label={`Edit ${buyer.fullName}`}
+                            title="Edit Profile"
+                            onClick={() => startEdit(buyer)}
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger p-1 px-2"
+                            aria-label={`Delete ${buyer.fullName}`}
+                            title="Delete Profile"
+                            onClick={() => handleDelete(buyer)}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -730,14 +788,14 @@ export default function Buyers() {
                               width="40"
                               height="40"
                               className="rounded-circle"
-                              style={{ objectFit: "cover", cursor: "zoom-in" }}
+                              style={{ objectFit: "cover", cursor: "zoom-in", width: 40, height: 40, minWidth: 40, minHeight: 40, aspectRatio: '1 / 1', flexShrink: 0 }}
                               title="Click to zoom photo"
                               onClick={() => openZoom(buyer)}
                             />
                           ) : (
                             <span
                               className="buyer-avatar-placeholder small"
-                              style={{ width: 40, height: 40, fontSize: 14, cursor: "pointer" }}
+                              style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, aspectRatio: '1 / 1', fontSize: 14, cursor: "pointer", flexShrink: 0 }}
                               title="Click to view details"
                               onClick={() => openZoom(buyer)}
                             >
@@ -761,22 +819,28 @@ export default function Buyers() {
                         {buyer.createdAt ? new Date(buyer.createdAt).toLocaleDateString() : "—"}
                       </td>
                       <td>
-                        <div className="d-flex justify-content-end gap-2">
-                          <button
-                            className="btn btn-sm btn-outline-success"
-                            aria-label={`Edit ${buyer.fullName}`}
-                            onClick={() => startEdit(buyer)}
-                          >
-                            <Pencil size={15} />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            aria-label={`Delete ${buyer.fullName}`}
-                            onClick={() => handleDelete(buyer)}
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
+                        {isAdmin ? (
+                          <div className="d-flex justify-content-end gap-2">
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-success"
+                              aria-label={`Edit ${buyer.fullName}`}
+                              onClick={() => startEdit(buyer)}
+                            >
+                              <Pencil size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-danger"
+                              aria-label={`Delete ${buyer.fullName}`}
+                              onClick={() => handleDelete(buyer)}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-muted small">View Only</span>
+                        )}
                       </td>
                     </tr>
                   ))}

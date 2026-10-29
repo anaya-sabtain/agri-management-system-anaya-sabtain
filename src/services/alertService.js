@@ -5,6 +5,8 @@ import { getAvailableStock } from "./orderUtils";
 export function getFarmAlerts(weather = null) {
   const crops = getAll(STORAGE_KEYS.CROPS);
   const orders = getAll(STORAGE_KEYS.ORDERS);
+  const tasks = getAll(STORAGE_KEYS.TASKS);
+  const inventory = getAll(STORAGE_KEYS.INVENTORY);
   const alerts = [];
 
   const today = new Date();
@@ -81,7 +83,50 @@ export function getFarmAlerts(weather = null) {
     }
   });
 
-  // 4. Atmospheric / Humidity Alerts
+  // 4. Farm Task Scheduler Alerts
+  tasks.forEach((task) => {
+    // Completed tasks should not generate alerts.
+    if (String(task.status).toLowerCase() === "done") return;
+
+    if (!task.dueDate) return;
+
+    const diffDays = Math.round(
+      (
+        new Date(`${task.dueDate}T00:00:00`).getTime() -
+        new Date(`${todayString}T00:00:00`).getTime()
+      ) / (1000 * 60 * 60 * 24)
+    );
+
+    const taskName = task.title || task.type || "Farm task";
+
+    if (diffDays < 0) {
+      alerts.push({
+        id: `task-overdue-${task.id}`,
+        type: "danger",
+        category: "Farm Tasks",
+        title: `Overdue Task: ${taskName}`,
+        message: `This task was due ${Math.abs(diffDays)} day(s) ago. Complete it as soon as possible.`,
+      });
+    } else if (diffDays === 0) {
+      alerts.push({
+        id: `task-due-${task.id}`,
+        type: "warning",
+        category: "Farm Tasks",
+        title: `Task Due Today: ${taskName}`,
+        message: "This farm task is scheduled for today. Please complete it on time.",
+      });
+    } else if (diffDays <= 2) {
+      alerts.push({
+        id: `task-soon-${task.id}`,
+        type: "info",
+        category: "Farm Tasks",
+        title: `Task Approaching: ${taskName}`,
+        message: `This task is due in ${diffDays} day(s).`,
+      });
+    }
+  });
+
+  // 5. Atmospheric / Humidity Alerts
   if (weather && Number.isFinite(weather.humidity)) {
     if (weather.humidity > 70) {
       alerts.push({
@@ -101,6 +146,31 @@ export function getFarmAlerts(weather = null) {
       });
     }
   }
+
+  // 6. Inputs Inventory Alerts
+  inventory.forEach((item) => {
+    const qty = Number(item.quantity) || 0;
+    const min = Number(item.minimumStock) || 0;
+    const itemName = item.name || "Supply item";
+
+    if (qty === 0) {
+      alerts.push({
+        id: `inventory-out-${item.id}`,
+        type: "danger",
+        category: "Inputs Inventory",
+        title: `Out of Stock: ${itemName}`,
+        message: `${itemName} is completely depleted. Reorder supplies immediately.`,
+      });
+    } else if (qty <= min) {
+      alerts.push({
+        id: `inventory-low-${item.id}`,
+        type: "warning",
+        category: "Inputs Inventory",
+        title: `Low Stock: ${itemName}`,
+        message: `Only ${qty} ${item.unit || "units"} remaining (minimum required: ${min} ${item.unit || "units"}).`,
+      });
+    }
+  });
 
   return alerts;
 }
