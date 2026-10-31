@@ -16,6 +16,8 @@ import HarvestChart from '../components/dashboard/HarvestChart'
 import CropHealthDistributionChart from '../components/dashboard/CropHealthDistributionChart'
 import StockSummaryWidget from '../components/dashboard/StockSummaryWidget'
 import FarmAlertsBanner from '../components/dashboard/FarmAlertsBanner'
+import EquipmentMaintenanceSummary from '../components/EquipmentMaintenanceSummary'
+import WorkersAttendanceSummary from '../components/WorkersAttendanceSummary'
 
 import {
   fetchWeather,
@@ -229,6 +231,16 @@ export default function Dashboard() {
             <StockSummaryWidget crops={crops} orders={orders} buyers={buyers} />
           </div>
         </div>
+      </div>
+
+      {/* Workers & Labour Attendance Live Summary */}
+      <div className="dashboard-section">
+        <WorkersAttendanceSummary />
+      </div>
+
+      {/* Equipment & Maintenance Live Summary */}
+      <div className="dashboard-section">
+        <EquipmentMaintenanceSummary />
       </div>
     </section>
   )

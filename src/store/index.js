@@ -10,6 +10,10 @@ import tasksReducer from './tasksSlice'
 import expensesReducer from './expensesSlice'
 import inventoryReducer from './inventorySlice'
 import activityReducer from './activitySlice'
+import workersReducer from './workersSlice'
+import attendanceReducer from './attendanceSlice'
+import equipmentReducer from './equipmentSlice'
+import maintenanceReducer from './maintenanceSlice'
 import { persistenceMiddleware } from './persistenceMiddleware'
 import { STORAGE_KEYS } from '../data/dataModels'
 import { getAll } from '../services/storageService'
@@ -68,11 +72,51 @@ function loadSavedInventory() {
   }
 }
 
+function loadSavedWorkers() {
+  try {
+    const items = getAll(STORAGE_KEYS.WORKERS)
+    return Array.isArray(items) ? items : []
+  } catch (error) {
+    console.error('Could not load saved workers:', error)
+    return []
+  }
+}
+
 function loadSavedActivity() {
   try {
     return getAll(STORAGE_KEYS.ACTIVITY)
   } catch (error) {
     console.error('Could not load saved activities:', error)
+    return []
+  }
+}
+
+function loadSavedAttendance() {
+  try {
+    const items = getAll(STORAGE_KEYS.ATTENDANCE)
+    return Array.isArray(items) ? items : []
+  } catch (error) {
+    console.error('Could not load saved attendance:', error)
+    return []
+  }
+}
+
+function loadSavedEquipment() {
+  try {
+    const items = getAll(STORAGE_KEYS.EQUIPMENT)
+    return Array.isArray(items) ? items : []
+  } catch (error) {
+    console.error('Could not load saved equipment:', error)
+    return []
+  }
+}
+
+function loadSavedMaintenance() {
+  try {
+    const items = getAll(STORAGE_KEYS.MAINTENANCE)
+    return Array.isArray(items) ? items : []
+  } catch (error) {
+    console.error('Could not load saved maintenance:', error)
     return []
   }
 }
@@ -89,6 +133,10 @@ export const store = configureStore({
     expenses: expensesReducer,
     inventory: inventoryReducer,
     activity: activityReducer,
+    workers: workersReducer,
+    attendance: attendanceReducer,
+    equipment: equipmentReducer,
+    maintenance: maintenanceReducer,
   },
 
   preloadedState: {
@@ -118,6 +166,26 @@ export const store = configureStore({
     },
     activity: {
       items: loadSavedActivity(),
+      error: null,
+    },
+    workers: {
+      items: loadSavedWorkers(),
+      loading: false,
+      error: null,
+    },
+    attendance: {
+      items: loadSavedAttendance(),
+      loading: false,
+      error: null,
+    },
+    equipment: {
+      items: loadSavedEquipment(),
+      loading: false,
+      error: null,
+    },
+    maintenance: {
+      items: loadSavedMaintenance(),
+      loading: false,
       error: null,
     },
   },

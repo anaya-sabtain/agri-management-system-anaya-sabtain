@@ -10,6 +10,9 @@ import {
   Package,
   BarChart3,
   Activity,
+  CalendarCheck,
+  Tractor,
+  Wrench,
   X,
 } from 'lucide-react'
 
@@ -18,6 +21,10 @@ const navigation = [
   { label: 'Crops', path: '/crops', Icon: Sprout },
   { label: 'Harvest & Orders', path: '/harvest-orders', Icon: ClipboardList },
   { label: 'Buyers', path: '/buyers', Icon: Users },
+  { label: 'Workers & Labour', path: '/workers', Icon: Users },
+  { label: 'Attendance & Wages', path: '/attendance', Icon: CalendarCheck },
+  { label: 'Equipment & Maintenance', path: '/equipment', Icon: Tractor },
+  { label: 'Maintenance Tracker', path: '/maintenance', Icon: Wrench },
   { label: 'Farm Tasks', path: '/farm-tasks', Icon: ClipboardList },
   { label: 'Expenses', path: '/expenses', Icon: Wallet },
   { label: 'Profit & Loss', path: '/profit-loss', Icon: ChartNoAxesCombined },

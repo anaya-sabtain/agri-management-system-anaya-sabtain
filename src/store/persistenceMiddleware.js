@@ -97,6 +97,71 @@ const persistenceConfig = {
     storageKey: STORAGE_KEYS.ACTIVITY,
     select: (state) => state.activity.items,
   },
+  'workers/workerAdded': {
+    storageKey: STORAGE_KEYS.WORKERS,
+    select: (state) => state.workers.items,
+  },
+  'workers/workerUpdated': {
+    storageKey: STORAGE_KEYS.WORKERS,
+    select: (state) => state.workers.items,
+  },
+  'workers/workerDeleted': {
+    storageKey: STORAGE_KEYS.WORKERS,
+    select: (state) => state.workers.items,
+  },
+  'workers/workersLoaded': {
+    storageKey: STORAGE_KEYS.WORKERS,
+    select: (state) => state.workers.items,
+  },
+  'attendance/attendanceAdded': {
+    storageKey: STORAGE_KEYS.ATTENDANCE,
+    select: (state) => state.attendance.items,
+  },
+  'attendance/attendanceUpdated': {
+    storageKey: STORAGE_KEYS.ATTENDANCE,
+    select: (state) => state.attendance.items,
+  },
+  'attendance/attendanceDeleted': {
+    storageKey: STORAGE_KEYS.ATTENDANCE,
+    select: (state) => state.attendance.items,
+  },
+  'attendance/attendanceLoaded': {
+    storageKey: STORAGE_KEYS.ATTENDANCE,
+    select: (state) => state.attendance.items,
+  },
+  'equipment/equipmentAdded': {
+    storageKey: STORAGE_KEYS.EQUIPMENT,
+    select: (state) => state.equipment.items,
+  },
+  'equipment/equipmentUpdated': {
+    storageKey: STORAGE_KEYS.EQUIPMENT,
+    select: (state) => state.equipment.items,
+  },
+  'equipment/equipmentDeleted': {
+    storageKey: STORAGE_KEYS.EQUIPMENT,
+    select: (state) => state.equipment.items,
+  },
+  'equipment/equipmentLoaded': {
+    storageKey: STORAGE_KEYS.EQUIPMENT,
+    select: (state) => state.equipment.items,
+  },
+
+  'maintenance/maintenanceAdded': {
+    storageKey: STORAGE_KEYS.MAINTENANCE,
+    select: (state) => state.maintenance.items,
+  },
+  'maintenance/maintenanceUpdated': {
+    storageKey: STORAGE_KEYS.MAINTENANCE,
+    select: (state) => state.maintenance.items,
+  },
+  'maintenance/maintenanceDeleted': {
+    storageKey: STORAGE_KEYS.MAINTENANCE,
+    select: (state) => state.maintenance.items,
+  },
+  'maintenance/maintenanceLoaded': {
+    storageKey: STORAGE_KEYS.MAINTENANCE,
+    select: (state) => state.maintenance.items,
+  },
 }
 
 export const persistenceMiddleware = (storeAPI) => (next) => (action) => {

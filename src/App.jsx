@@ -8,6 +8,10 @@ import Dashboard from './pages/Dashboard'
 import Crops from './pages/Crops'
 import HarvestOrders from './pages/HarvestOrders'
 import Buyers from './pages/Buyers'
+import Workers from './pages/Workers'
+import Attendance from './pages/Attendance'
+import Equipment from './pages/Equipment'
+import Maintenance from './pages/Maintenance'
 import FarmTasks from './pages/FarmTasks'
 import Expenses from './pages/Expenses'
 import ProfitLoss from './pages/ProfitLoss'
@@ -42,6 +46,10 @@ export default function App() {
                 element={<HarvestOrders />}
               />
               <Route path="/buyers" element={<Buyers />} />
+              <Route path="/workers" element={<Workers />} />
+              <Route path="/attendance" element={<Attendance />} />
+              <Route path="/equipment" element={<Equipment />} />
+              <Route path="/maintenance" element={<Maintenance />} />
               <Route path="/farm-tasks" element={<FarmTasks />} />
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/profit-loss" element={<ProfitLoss />} />

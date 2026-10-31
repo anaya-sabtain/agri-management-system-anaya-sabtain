@@ -11,6 +11,10 @@ export const STORAGE_KEYS = {
   TASKS: "agri_tasks",
   EXPENSES: "agri_expenses",
   INVENTORY: "agri_inventory",
+  WORKERS: "agri_workers",
+  ATTENDANCE: "agri_attendance",
+  EQUIPMENT: "agri_equipment",
+  MAINTENANCE: "agri_maintenance",
   ACTIVITY: "agri_activity",
 };
 
