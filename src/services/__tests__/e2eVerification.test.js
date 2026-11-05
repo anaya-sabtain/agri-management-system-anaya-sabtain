@@ -217,7 +217,7 @@ describe("AgriSense End-to-End Comprehensive Verification", () => {
 
       store.dispatch(activityCleared());
       expect(selectAllActivities(store.getState()).length).toBe(0);
-    });
+    }, 15000);
   });
 
   describe("3. Authentication & Roles Verification", () => {

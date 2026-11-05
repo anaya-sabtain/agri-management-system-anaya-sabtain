@@ -146,23 +146,100 @@
 .demo-credentials {
   margin-top: 24px;
   padding: 14px;
-  background: #f5f8f3;
-  border: 1px solid #e4ebe0;
-  border-radius: 10px;
-  overflow-wrap: anywhere;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
 }
 
-.demo-credentials strong {
-  display: block;
-  margin-bottom: 8px;
-  color: #2b5438;
+.demo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.demo-header strong {
+  color: #1e293b;
   font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-.demo-credentials p {
-  margin: 5px 0;
-  color: #59695c;
+.demo-header span {
+  color: #64748b;
   font-size: 11px;
+}
+
+.demo-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-card-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.demo-card-btn:hover {
+  border-color: #10b981;
+  background: #f0fdf4;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.1);
+}
+
+.demo-pill-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.tag-admin {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.tag-manager {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.demo-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.demo-user-email {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.demo-user-pass {
+  font-size: 11px;
+  color: #64748b;
+  font-family: monospace;
 }
 
 .login-footer {

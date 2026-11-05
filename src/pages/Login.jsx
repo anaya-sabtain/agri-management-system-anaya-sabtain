@@ -31,15 +31,25 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
 
+  function fillCredentials(userEmail, userPassword) {
+    setEmail(userEmail)
+    setPassword(userPassword)
+    setError('')
+    dispatch(clearAuthError())
+  }
+
   function handleSubmit(event) {
     event.preventDefault()
     setError('')
     dispatch(clearAuthError())
 
+    const cleanEmail = (email || '').trim().toLowerCase()
+    const cleanPassword = (password || '').trim()
+
     const matchedUser = DEMO_USERS.find(
       (user) =>
-        user.email === email.trim().toLowerCase() &&
-        user.password === password
+        user.email.toLowerCase() === cleanEmail &&
+        (user.password === cleanPassword || user.password.toLowerCase() === cleanPassword.toLowerCase())
     )
 
     if (!matchedUser) {
@@ -133,9 +143,37 @@ export default function Login() {
         </form>
 
         <div className="demo-credentials">
-          <strong>Demo access</strong>
-          <p>Admin: admin@agrisense.com / Admin@123</p>
-          <p>Manager: manager@agrisense.com / Manager@123</p>
+          <div className="demo-header">
+            <strong>Demo quick access</strong>
+            <span>Click to fill credentials</span>
+          </div>
+          <div className="demo-grid">
+            <button
+              type="button"
+              className="demo-card-btn"
+              onClick={() => fillCredentials('admin@agrisense.com', 'Admin@123')}
+              title="Click to fill Admin account"
+            >
+              <span className="demo-pill-tag tag-admin">Admin</span>
+              <div className="demo-details">
+                <span className="demo-user-email">admin@agrisense.com</span>
+                <span className="demo-user-pass">Admin@123</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              className="demo-card-btn"
+              onClick={() => fillCredentials('manager@agrisense.com', 'Manager@123')}
+              title="Click to fill Manager account"
+            >
+              <span className="demo-pill-tag tag-manager">Manager</span>
+              <div className="demo-details">
+                <span className="demo-user-email">manager@agrisense.com</span>
+                <span className="demo-user-pass">Manager@123</span>
+              </div>
+            </button>
+          </div>
         </div>
 
         <p className="login-footer">

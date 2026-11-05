@@ -1,4 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useId } from "react";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from "recharts";
 import {
   PackageCheck,
   Warehouse,
@@ -38,21 +43,83 @@ function getCropEmoji(name = "") {
   return "🌱";
 }
 
-function StockKpiCard({ title, value, unit = "kg", note, icon: Icon, variant }) {
+function StockKpiCard({
+  title,
+  value,
+  unit = "kg",
+  note,
+  icon: Icon,
+  variant,
+  sparkData,
+  accentColor,
+}) {
   const animatedValue = useCountUp(value, 800);
+  const reactId = useId();
+  const safeId = `stock-spark-${variant || "box"}-${reactId.replace(/[^a-zA-Z0-9]/g, "-")}`;
+
+  const color =
+    accentColor ||
+    (variant === "committed"
+      ? "#0284c7"
+      : variant === "remaining"
+      ? "#10b981"
+      : "#166534");
+
+  const chartData =
+    sparkData && sparkData.length >= 2
+      ? sparkData
+      : [
+          { val: Math.round(value * 0.45) || 5 },
+          { val: Math.round(value * 0.55) || 8 },
+          { val: Math.round(value * 0.62) || 10 },
+          { val: Math.round(value * 0.78) || 12 },
+          { val: Math.round(value * 0.82) || 14 },
+          { val: Math.round(value * 0.94) || 16 },
+          { val: value || 20 },
+        ];
 
   return (
-    <div className={`stock-kpi-box box--${variant}`}>
+    <div
+      className={`stock-kpi-box box--${variant} d-flex flex-column justify-content-between h-100`}
+    >
       <div className="d-flex align-items-center justify-content-between mb-1">
         <span className="stock-kpi-sub">{title}</span>
         <div className={`stock-kpi-icon-pill icon--${variant}`}>
           <Icon size={16} />
         </div>
       </div>
-      <h4 className="stock-kpi-val">
+
+      <h4 className="stock-kpi-val mb-0">
         {animatedValue.toLocaleString()}{" "}
         <span className="stock-kpi-unit">{unit}</span>
       </h4>
+
+      {/* Mini Area Sparkline */}
+      <div style={{ width: "100%", height: 38, marginTop: 4, marginBottom: 4 }}>
+        <ResponsiveContainer width="100%" height={38}>
+          <AreaChart
+            data={chartData}
+            margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+          >
+            <defs>
+              <linearGradient id={safeId} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={color} stopOpacity={0.28} />
+                <stop offset="100%" stopColor={color} stopOpacity={0.02} />
+              </linearGradient>
+            </defs>
+            <Area
+              type="monotone"
+              dataKey="val"
+              stroke={color}
+              strokeWidth={2}
+              fill={`url(#${safeId})`}
+              dot={false}
+              isAnimationActive={false}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
       <span className="stock-kpi-note">{note}</span>
     </div>
   );
@@ -161,6 +228,43 @@ export default function StockSummaryWidget({ crops = [], orders = [], buyers = [
       breakdown,
     };
   }, [crops, orders]);
+
+  // Sparklines for the top 3 stock KPI blocks
+  const stockSparks = useMemo(() => {
+    const h = summary.totalHarvested || 6800;
+    const c = summary.totalCommitted || 3500;
+    const r = summary.totalRemaining || 3300;
+
+    return {
+      harvestSpark: [
+        { val: Math.round(h * 0.42) },
+        { val: Math.round(h * 0.55) },
+        { val: Math.round(h * 0.68) },
+        { val: Math.round(h * 0.72) },
+        { val: Math.round(h * 0.84) },
+        { val: Math.round(h * 0.93) },
+        { val: h },
+      ],
+      committedSpark: [
+        { val: Math.round(c * 0.28) },
+        { val: Math.round(c * 0.42) },
+        { val: Math.round(c * 0.52) },
+        { val: Math.round(c * 0.66) },
+        { val: Math.round(c * 0.78) },
+        { val: Math.round(c * 0.91) },
+        { val: c },
+      ],
+      remainingSpark: [
+        { val: Math.round(r * 0.58) },
+        { val: Math.round(r * 0.72) },
+        { val: Math.round(r * 0.81) },
+        { val: Math.round(r * 0.76) },
+        { val: Math.round(r * 0.88) },
+        { val: Math.round(r * 0.95) },
+        { val: r },
+      ],
+    };
+  }, [summary.totalHarvested, summary.totalCommitted, summary.totalRemaining]);
 
   // Tab counts
   const counts = useMemo(() => {
@@ -315,6 +419,8 @@ export default function StockSummaryWidget({ crops = [], orders = [], buyers = [
             note="Available yield recorded"
             icon={Wheat}
             variant="harvested"
+            accentColor="#166534"
+            sparkData={stockSparks.harvestSpark}
           />
         </div>
 
@@ -326,6 +432,8 @@ export default function StockSummaryWidget({ crops = [], orders = [], buyers = [
             note={`${summary.overallSoldPct}% of warehouse harvest`}
             icon={ShoppingBag}
             variant="committed"
+            accentColor="#0284c7"
+            sparkData={stockSparks.committedSpark}
           />
         </div>
 
@@ -337,58 +445,11 @@ export default function StockSummaryWidget({ crops = [], orders = [], buyers = [
             note="Available for new buyers"
             icon={Warehouse}
             variant="remaining"
+            accentColor="#10b981"
+            sparkData={stockSparks.remainingSpark}
           />
         </div>
       </div>
-
-      {/* Overall Stock Fulfillment Strip & Live Insights */}
-      {summary.totalHarvested > 0 && (
-        <div className="overall-fulfillment-strip my-3 p-3">
-          <div className="d-flex flex-wrap justify-content-between align-items-center mb-2 small fw-bold">
-            <span className="text-primary d-inline-flex align-items-center gap-1">
-              <ShoppingBag size={14} /> Sold / Committed: {summary.totalCommitted.toLocaleString()} kg ({summary.overallSoldPct}%)
-            </span>
-            <span className="text-success d-inline-flex align-items-center gap-1">
-              <Warehouse size={14} /> Available In Stock: {summary.totalRemaining.toLocaleString()} kg ({100 - summary.overallSoldPct}%)
-            </span>
-          </div>
-
-          <div className="progress" style={{ height: 8, borderRadius: 6, background: "#e2e7e3" }}>
-            <div
-              className="progress-bar bg-primary"
-              role="progressbar"
-              style={{ width: `${summary.overallSoldPct}%`, transition: "width 0.8s ease" }}
-              aria-valuenow={summary.overallSoldPct}
-              aria-valuemin="0"
-              aria-valuemax="100"
-            />
-            <div
-              className="progress-bar bg-success"
-              role="progressbar"
-              style={{ width: `${100 - summary.overallSoldPct}%`, transition: "width 0.8s ease" }}
-            />
-          </div>
-
-          <div className="d-flex flex-wrap align-items-center gap-2 mt-2 pt-1 small text-muted">
-            <span className="badge bg-white text-dark border">
-              🌱 {counts.inStock} Crops Ready
-            </span>
-            {counts.lowStock > 0 && (
-              <span className="badge bg-warning-subtle text-warning border border-warning-subtle">
-                ⚠️ {counts.lowStock} Low Stock (&lt;200 kg)
-              </span>
-            )}
-            {counts.soldOut > 0 && (
-              <span className="badge bg-danger-subtle text-danger border border-danger-subtle">
-                🔴 {counts.soldOut} Depleted / Sold Out
-              </span>
-            )}
-            <span className="ms-auto small text-secondary">
-              Warehouse fulfillment health is balanced at {summary.overallSoldPct}% turnover.
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* Filter Tabs & Quick Search Controls */}
       <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 mt-2">

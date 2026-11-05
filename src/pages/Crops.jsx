@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from "recharts";
+import {
   Search,
   Plus,
   Pencil,
@@ -378,50 +383,202 @@ export default function Crops() {
 
       {/* Top Metrics Strip */}
       <div className="row g-3 mb-4">
-        <div className="col-6 col-lg-3">
-          <div className="mgmt-metric-card">
-            <div className="mgmt-metric-icon bg-success-subtle text-success">
-              <Sprout size={20} />
-            </div>
+        {/* 1. Total Registered */}
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #10b981' }}>
             <div>
-              <span className="mgmt-metric-label">Total Registered</span>
-              <h3 className="mgmt-metric-val">{metrics.total} Crops</h3>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Total Registered
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#ecfdf5', color: '#059669' }}
+                >
+                  <Sprout size={20} />
+                </div>
+              </div>
+              <div className="h3 fw-bold text-dark mb-0">{metrics.total} <span className="fs-6 fw-normal text-secondary">Crops</span></div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(metrics.total - 2, 1) },
+                    { val: Math.max(metrics.total - 1, 1) },
+                    { val: Math.max(metrics.total - 1, 1) },
+                    { val: metrics.total },
+                    { val: Math.max(metrics.total - 1, 1) },
+                    { val: metrics.total },
+                    { val: metrics.total },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="crpSparkTot" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} fill="url(#crpSparkTot)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Registered crop varieties</span>
+              <span className="badge rounded-pill bg-success-subtle text-success small">Active Roster</span>
             </div>
           </div>
         </div>
 
-        <div className="col-6 col-lg-3">
-          <div className="mgmt-metric-card">
-            <div className="mgmt-metric-icon bg-primary-subtle text-primary">
-              <Clock size={20} />
-            </div>
+        {/* 2. Currently Growing */}
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #0284c7' }}>
             <div>
-              <span className="mgmt-metric-label">Currently Growing</span>
-              <h3 className="mgmt-metric-val">{metrics.growing} Active</h3>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Currently Growing
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#e0f2fe', color: '#0284c7' }}
+                >
+                  <Clock size={20} />
+                </div>
+              </div>
+              <div className="h3 fw-bold text-dark mb-0">{metrics.growing} <span className="fs-6 fw-normal text-secondary">Active</span></div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(metrics.growing - 2, 0) },
+                    { val: Math.max(metrics.growing - 1, 0) },
+                    { val: metrics.growing },
+                    { val: Math.max(metrics.growing - 1, 0) },
+                    { val: metrics.growing },
+                    { val: metrics.growing },
+                    { val: metrics.growing },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="crpSparkGrow" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0284c7" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#0284c7" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#0284c7" strokeWidth={2} fill="url(#crpSparkGrow)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>In field cultivation</span>
+              <span className="badge rounded-pill bg-primary-subtle text-primary small">Cultivating</span>
             </div>
           </div>
         </div>
 
-        <div className="col-6 col-lg-3">
-          <div className="mgmt-metric-card">
-            <div className="mgmt-metric-icon bg-warning-subtle text-warning">
-              <CheckCircle2 size={20} />
-            </div>
+        {/* 3. Ready for Harvest */}
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #f59e0b' }}>
             <div>
-              <span className="mgmt-metric-label">Ready for Harvest</span>
-              <h3 className="mgmt-metric-val">{metrics.ready} Ready</h3>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Ready for Harvest
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#fef3c7', color: '#b45309' }}
+                >
+                  <CheckCircle2 size={20} />
+                </div>
+              </div>
+              <div className="h3 fw-bold text-dark mb-0">{metrics.ready} <span className="fs-6 fw-normal text-secondary">Ready</span></div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(metrics.ready - 1, 0) },
+                    { val: Math.max(metrics.ready - 1, 0) },
+                    { val: metrics.ready },
+                    { val: Math.max(metrics.ready - 1, 0) },
+                    { val: metrics.ready },
+                    { val: metrics.ready },
+                    { val: metrics.ready },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="crpSparkReady" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#f59e0b" strokeWidth={2} fill="url(#crpSparkReady)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Collection pipeline</span>
+              <span className="badge rounded-pill bg-warning-subtle text-warning-emphasis small">Ready</span>
             </div>
           </div>
         </div>
 
-        <div className="col-6 col-lg-3">
-          <div className="mgmt-metric-card">
-            <div className="mgmt-metric-icon bg-info-subtle text-info">
-              <Scale size={20} />
-            </div>
+        {/* 4. Total Harvested */}
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #8b5cf6' }}>
             <div>
-              <span className="mgmt-metric-label">Total Harvested</span>
-              <h3 className="mgmt-metric-val">{metrics.totalHarvested.toLocaleString()} kg</h3>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Total Harvested
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#f5f3ff', color: '#7c3aed' }}
+                >
+                  <Scale size={20} />
+                </div>
+              </div>
+              <div className="h3 fw-bold text-dark mb-0">{metrics.totalHarvested.toLocaleString()} <span className="fs-6 fw-normal text-secondary">kg</span></div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.round(metrics.totalHarvested * 0.45) },
+                    { val: Math.round(metrics.totalHarvested * 0.6) },
+                    { val: Math.round(metrics.totalHarvested * 0.72) },
+                    { val: Math.round(metrics.totalHarvested * 0.85) },
+                    { val: Math.round(metrics.totalHarvested * 0.9) },
+                    { val: metrics.totalHarvested },
+                    { val: metrics.totalHarvested },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="crpSparkHarv" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#8b5cf6" strokeWidth={2} fill="url(#crpSparkHarv)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Recorded yield production</span>
+              <span className="badge rounded-pill bg-purple-subtle text-purple small" style={{ background: '#f5f3ff', color: '#7c3aed' }}>Cumulative</span>
             </div>
           </div>
         </div>

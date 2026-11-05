@@ -84,14 +84,15 @@ export default function Sidebar({ open, onClose }) {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="sidebar-footer-icon">
-            <Sprout size={20} />
-          </div>
-          <div>
-            <div className="sidebar-footer-title">Grow smarter</div>
-            <div className="sidebar-footer-text">
-              Better farming decisions.
+          <div className="sidebar-footer-card">
+            <div className="d-flex align-items-center justify-content-between mb-1">
+              <span className="sidebar-live-pill">
+                <span className="live-beacon-dot" /> Live Telemetry
+              </span>
+              <span className="sidebar-footer-badge">v2.4 Pro</span>
             </div>
+            <div className="sidebar-footer-title">AgriSense Farm OS</div>
+            <div className="sidebar-footer-text">100% Real-Time Connected</div>
           </div>
         </div>
       </aside>

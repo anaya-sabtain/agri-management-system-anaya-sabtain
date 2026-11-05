@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from 'recharts'
+import {
   CalendarDays,
   CheckCircle2,
   ClipboardList,
@@ -279,75 +284,223 @@ export default function FarmTasks() {
         </div>
       )}
 
-      {/* 4 Stat Cards */}
+      {/* 4 Stat Cards with Sparklines */}
       <div className="row g-3 mb-4">
+        {/* 1. Total Workflows */}
         <div className="col-6 col-xl-3">
-          <div className="pnl-stat-card card--pipeline h-100">
-            <div className="stat-card-top">
-              <span className="stat-card-title fw-semibold">Total Workflows</span>
-              <div className="stat-card-icon" style={{ background: '#e0f2fe', color: '#0369a1' }}>
-                <ClipboardList size={20} />
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #0284c7' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Total Workflows
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#e0f2fe', color: '#0369a1' }}
+                >
+                  <ClipboardList size={20} />
+                </div>
               </div>
+              <div className="h3 fw-bold text-dark mb-0">{counts.total}</div>
             </div>
-            <div className="stat-card-value text-dark">{counts.total}</div>
-            <div className="stat-card-subtitle d-flex justify-content-between">
-              <span>All recorded tasks</span>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(counts.total - 2, 1) },
+                    { val: Math.max(counts.total - 1, 1) },
+                    { val: Math.max(counts.total - 1, 2) },
+                    { val: counts.total },
+                    { val: counts.total },
+                    { val: counts.total },
+                    { val: counts.total },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="tskSparkTot" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0284c7" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#0284c7" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#0284c7" strokeWidth={2} fill="url(#tskSparkTot)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>All recorded tasks</span>
               <span className="badge rounded-pill bg-light text-secondary border small">Total</span>
             </div>
           </div>
         </div>
 
+        {/* 2. Pending Action */}
         <div className="col-6 col-xl-3">
-          <div className="pnl-stat-card card--pipeline h-100">
-            <div className="stat-card-top">
-              <span className="stat-card-title fw-semibold">Pending Action</span>
-              <div className="stat-card-icon" style={{ background: '#fef3c7', color: '#b45309' }}>
-                <Clock size={20} />
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #f59e0b' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Pending Action
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#fef3c7', color: '#b45309' }}
+                >
+                  <Clock size={20} />
+                </div>
               </div>
+              <div className="h3 fw-bold text-warning mb-0">{counts.pending}</div>
             </div>
-            <div className="stat-card-value text-warning">{counts.pending}</div>
-            <div className="stat-card-subtitle d-flex justify-content-between">
-              <span>Awaiting field work</span>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(counts.pending - 1, 0) },
+                    { val: Math.max(counts.pending, 1) },
+                    { val: Math.max(counts.pending + 1, 2) },
+                    { val: Math.max(counts.pending, 1) },
+                    { val: Math.max(counts.pending + 1, 2) },
+                    { val: counts.pending },
+                    { val: counts.pending },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="tskSparkPend" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#f59e0b" strokeWidth={2} fill="url(#tskSparkPend)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Awaiting field work</span>
               <span className="badge rounded-pill bg-warning-subtle text-warning-emphasis small">Active</span>
             </div>
           </div>
         </div>
 
+        {/* 3. Completed */}
         <div className="col-6 col-xl-3">
-          <div className="pnl-stat-card card--profit h-100">
-            <div className="stat-card-top">
-              <span className="stat-card-title fw-semibold">Completed</span>
-              <div className="stat-card-icon" style={{ background: '#e8f5e9', color: '#1b5e20' }}>
-                <CheckCircle2 size={20} />
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #10b981' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Completed
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#e8f5e9', color: '#1b5e20' }}
+                >
+                  <CheckCircle2 size={20} />
+                </div>
               </div>
+              <div className="h3 fw-bold text-success mb-0">{counts.done}</div>
             </div>
-            <div className="stat-card-value text-success">{counts.done}</div>
-            <div className="stat-card-subtitle d-flex justify-content-between">
-              <span>Successfully finished</span>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(counts.done - 2, 0) },
+                    { val: Math.max(counts.done - 1, 0) },
+                    { val: Math.max(counts.done - 1, 1) },
+                    { val: counts.done },
+                    { val: counts.done },
+                    { val: counts.done },
+                    { val: counts.done },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="tskSparkDone" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} fill="url(#tskSparkDone)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Successfully finished</span>
               <span className="badge rounded-pill bg-success-subtle text-success small">Done</span>
             </div>
           </div>
         </div>
 
+        {/* 4. Overdue Tasks */}
         <div className="col-6 col-xl-3">
-          <div className={`pnl-stat-card ${counts.overdue > 0 ? 'card--expense' : 'card--profit'} h-100`}>
-            <div className="stat-card-top">
-              <span className="stat-card-title fw-semibold">Overdue Tasks</span>
-              <div
-                className="stat-card-icon"
-                style={{
-                  background: counts.overdue > 0 ? '#fff1f2' : '#e8f5e9',
-                  color: counts.overdue > 0 ? '#e11d48' : '#2e7d32',
-                }}
-              >
-                <AlertTriangle size={20} />
+          <div
+            className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between"
+            style={{ borderTop: `4px solid ${counts.overdue > 0 ? '#ef4444' : '#10b981'}` }}
+          >
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Overdue Tasks
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    minWidth: 40,
+                    minHeight: 40,
+                    background: counts.overdue > 0 ? '#fff1f2' : '#e8f5e9',
+                    color: counts.overdue > 0 ? '#e11d48' : '#2e7d32',
+                  }}
+                >
+                  <AlertTriangle size={20} />
+                </div>
+              </div>
+              <div className={`h3 fw-bold mb-0 ${counts.overdue > 0 ? 'text-danger' : 'text-success'}`}>
+                {counts.overdue}
               </div>
             </div>
-            <div className={`stat-card-value ${counts.overdue > 0 ? 'text-danger' : 'text-success'}`}>
-              {counts.overdue}
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: counts.overdue > 0 ? 0 : 0 },
+                    { val: counts.overdue > 0 ? 1 : 0 },
+                    { val: counts.overdue > 0 ? 1 : 0 },
+                    { val: counts.overdue > 0 ? 2 : 0 },
+                    { val: counts.overdue > 0 ? 1 : 0 },
+                    { val: counts.overdue },
+                    { val: counts.overdue },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="tskSparkOver" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={counts.overdue > 0 ? '#ef4444' : '#10b981'} stopOpacity={0.28} />
+                      <stop offset="100%" stopColor={counts.overdue > 0 ? '#ef4444' : '#10b981'} stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="val"
+                    stroke={counts.overdue > 0 ? '#ef4444' : '#10b981'}
+                    strokeWidth={2}
+                    fill="url(#tskSparkOver)"
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <div className="stat-card-subtitle d-flex justify-content-between">
-              <span>Past deadline date</span>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Past deadline date</span>
               <span
                 className={`badge rounded-pill small ${
                   counts.overdue > 0

@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from "recharts";
+import {
   Search,
   Plus,
   Pencil,
@@ -411,38 +416,152 @@ export default function Buyers() {
 
       {/* Metrics Strip */}
       <div className="row g-3 mb-4">
+        {/* 1. Total Verified Buyers */}
         <div className="col-12 col-md-4">
-          <div className="mgmt-metric-card">
-            <div className="mgmt-metric-icon bg-success-subtle text-success">
-              <Users size={20} />
-            </div>
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #10b981' }}>
             <div>
-              <span className="mgmt-metric-label">Total Verified Buyers</span>
-              <h3 className="mgmt-metric-val">{metrics.total} Registered</h3>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Total Verified Buyers
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#ecfdf5', color: '#059669' }}
+                >
+                  <Users size={20} />
+                </div>
+              </div>
+              <div className="h3 fw-bold text-dark mb-0">{metrics.total} <span className="fs-6 fw-normal text-secondary">Registered</span></div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(metrics.total - 2, 1) },
+                    { val: Math.max(metrics.total - 1, 1) },
+                    { val: Math.max(metrics.total - 1, 1) },
+                    { val: metrics.total },
+                    { val: Math.max(metrics.total - 1, 1) },
+                    { val: metrics.total },
+                    { val: metrics.total },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="byrSparkTot" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} fill="url(#byrSparkTot)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Registered trade partners</span>
+              <span className="badge rounded-pill bg-success-subtle text-success small">Verified</span>
             </div>
           </div>
         </div>
 
+        {/* 2. Active Transacting */}
         <div className="col-12 col-md-4">
-          <div className="mgmt-metric-card">
-            <div className="mgmt-metric-icon bg-primary-subtle text-primary">
-              <UserCheck size={20} />
-            </div>
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #0284c7' }}>
             <div>
-              <span className="mgmt-metric-label">Active Transacting</span>
-              <h3 className="mgmt-metric-val">{metrics.active} With Orders</h3>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Active Transacting
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#e0f2fe', color: '#0284c7' }}
+                >
+                  <UserCheck size={20} />
+                </div>
+              </div>
+              <div className="h3 fw-bold text-dark mb-0">{metrics.active} <span className="fs-6 fw-normal text-secondary">With Orders</span></div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(metrics.active - 1, 0) },
+                    { val: Math.max(metrics.active - 1, 0) },
+                    { val: metrics.active },
+                    { val: Math.max(metrics.active - 1, 0) },
+                    { val: metrics.active },
+                    { val: metrics.active },
+                    { val: metrics.active },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="byrSparkAct" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0284c7" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#0284c7" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#0284c7" strokeWidth={2} fill="url(#byrSparkAct)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>With active orders</span>
+              <span className="badge rounded-pill bg-primary-subtle text-primary small">Transacting</span>
             </div>
           </div>
         </div>
 
+        {/* 3. Photo Verified */}
         <div className="col-12 col-md-4">
-          <div className="mgmt-metric-card">
-            <div className="mgmt-metric-icon bg-warning-subtle text-warning">
-              <ImageIcon size={20} />
-            </div>
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #8b5cf6' }}>
             <div>
-              <span className="mgmt-metric-label">Photo Verified</span>
-              <h3 className="mgmt-metric-val">{metrics.withPhotos} Photos Stored</h3>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Photo Verified
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#f5f3ff', color: '#7c3aed' }}
+                >
+                  <ImageIcon size={20} />
+                </div>
+              </div>
+              <div className="h3 fw-bold text-dark mb-0">{metrics.withPhotos} <span className="fs-6 fw-normal text-secondary">Photos Stored</span></div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(metrics.withPhotos - 1, 0) },
+                    { val: Math.max(metrics.withPhotos - 1, 0) },
+                    { val: metrics.withPhotos },
+                    { val: Math.max(metrics.withPhotos - 1, 0) },
+                    { val: metrics.withPhotos },
+                    { val: metrics.withPhotos },
+                    { val: metrics.withPhotos },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="byrSparkPhoto" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#8b5cf6" strokeWidth={2} fill="url(#byrSparkPhoto)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Profile photo cataloged</span>
+              <span className="badge rounded-pill bg-purple-subtle text-purple small" style={{ background: '#f5f3ff', color: '#7c3aed' }}>KYC Complete</span>
             </div>
           </div>
         </div>

@@ -27,6 +27,8 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
@@ -415,26 +417,24 @@ export default function ProfitLoss() {
       </div>
 
       {/* =========================================================================
-          4 LUXURY FINTECH STAT CARDS (PERFECT CIRCULAR ICONS)
+          4 LUXURY FINTECH STAT CARDS WITH RECHARTS SPARKLINES
           ========================================================================= */}
       <div className="row g-3 mb-4">
         {/* 1. Realized Revenue */}
         <div className="col-12 col-sm-6 col-xl-3">
-          <div className="pnl-stat-card-luxury h-100 d-flex flex-column justify-content-between">
+          <div className="pnl-stat-card-luxury h-100 d-flex flex-column justify-content-between p-3 p-md-4">
             <div>
               <div className="d-flex justify-content-between align-items-start mb-2">
-                <span className="small text-secondary fw-semibold">Realized Produce Sales</span>
+                <span className="small text-secondary fw-semibold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Realized Produce Sales
+                </span>
                 <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                   style={{
-                    width: 44,
-                    height: 44,
-                    minWidth: 44,
-                    minHeight: 44,
-                    aspectRatio: '1 / 1',
-                    borderRadius: '50%',
-                    flexShrink: 0,
-                    display: 'grid',
-                    placeItems: 'center',
+                    width: 42,
+                    height: 42,
+                    minWidth: 42,
+                    minHeight: 42,
                     background: '#e8f5e9',
                     color: '#1b5e20',
                   }}
@@ -450,17 +450,31 @@ export default function ProfitLoss() {
               </span>
             </div>
 
-            <div className="mt-3">
-              <svg viewBox="0 0 100 24" className="w-100" style={{ height: 26, overflow: 'visible' }}>
-                <defs>
-                  <linearGradient id="pnlGradGreen" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path d="M0,18 Q20,16 40,10 T80,4 T100,2" fill="none" stroke="#10b981" strokeWidth="2.5" />
-                <path d="M0,18 Q20,16 40,10 T80,4 T100,2 L100,24 L0,24 Z" fill="url(#pnlGradGreen)" />
-              </svg>
+            <div className="mt-2">
+              <div style={{ width: '100%', height: 40, marginTop: 4, marginBottom: 4 }}>
+                <ResponsiveContainer width="100%" height={40}>
+                  <AreaChart
+                    data={[
+                      { val: Math.round(periodMetrics.completedIncome * 0.3) || 10 },
+                      { val: Math.round(periodMetrics.completedIncome * 0.45) || 15 },
+                      { val: Math.round(periodMetrics.completedIncome * 0.4) || 12 },
+                      { val: Math.round(periodMetrics.completedIncome * 0.7) || 22 },
+                      { val: Math.round(periodMetrics.completedIncome * 0.65) || 20 },
+                      { val: Math.round(periodMetrics.completedIncome * 0.9) || 28 },
+                      { val: periodMetrics.completedIncome || 30 },
+                    ]}
+                    margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="pnlGradGreen" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} fill="url(#pnlGradGreen)" dot={false} isAnimationActive={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
               <div className="d-flex align-items-center justify-content-between small text-secondary mt-1">
                 <span>Completed Deliveries</span>
                 <span className="badge rounded-pill bg-success-subtle text-success small">Realized</span>
@@ -471,21 +485,19 @@ export default function ProfitLoss() {
 
         {/* 2. Total Operational Costs */}
         <div className="col-12 col-sm-6 col-xl-3">
-          <div className="pnl-stat-card-luxury h-100 d-flex flex-column justify-content-between">
+          <div className="pnl-stat-card-luxury h-100 d-flex flex-column justify-content-between p-3 p-md-4">
             <div>
               <div className="d-flex justify-content-between align-items-start mb-2">
-                <span className="small text-secondary fw-semibold">Farm Operating Costs (Opex)</span>
+                <span className="small text-secondary fw-semibold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Farm Operating Costs (Opex)
+                </span>
                 <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                   style={{
-                    width: 44,
-                    height: 44,
-                    minWidth: 44,
-                    minHeight: 44,
-                    aspectRatio: '1 / 1',
-                    borderRadius: '50%',
-                    flexShrink: 0,
-                    display: 'grid',
-                    placeItems: 'center',
+                    width: 42,
+                    height: 42,
+                    minWidth: 42,
+                    minHeight: 42,
                     background: '#ffebee',
                     color: '#b71c1c',
                   }}
@@ -501,17 +513,31 @@ export default function ProfitLoss() {
               </span>
             </div>
 
-            <div className="mt-3">
-              <svg viewBox="0 0 100 24" className="w-100" style={{ height: 26, overflow: 'visible' }}>
-                <defs>
-                  <linearGradient id="pnlGradRed" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ef4444" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path d="M0,6 Q30,12 60,16 T100,20" fill="none" stroke="#ef4444" strokeWidth="2.5" />
-                <path d="M0,6 Q30,12 60,16 T100,20 L100,24 L0,24 Z" fill="url(#pnlGradRed)" />
-              </svg>
+            <div className="mt-2">
+              <div style={{ width: '100%', height: 40, marginTop: 4, marginBottom: 4 }}>
+                <ResponsiveContainer width="100%" height={40}>
+                  <AreaChart
+                    data={[
+                      { val: Math.round(periodMetrics.totalExpense * 0.4) || 12 },
+                      { val: Math.round(periodMetrics.totalExpense * 0.52) || 16 },
+                      { val: Math.round(periodMetrics.totalExpense * 0.65) || 20 },
+                      { val: Math.round(periodMetrics.totalExpense * 0.72) || 22 },
+                      { val: Math.round(periodMetrics.totalExpense * 0.84) || 26 },
+                      { val: Math.round(periodMetrics.totalExpense * 0.93) || 28 },
+                      { val: periodMetrics.totalExpense || 30 },
+                    ]}
+                    margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="pnlGradRed" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#ef4444" stopOpacity={0.28} />
+                        <stop offset="100%" stopColor="#ef4444" stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="val" stroke="#ef4444" strokeWidth={2} fill="url(#pnlGradRed)" dot={false} isAnimationActive={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
               <div className="d-flex align-items-center justify-content-between small text-secondary mt-1">
                 <span>{periodMetrics.expenseCount} logged expenditures</span>
                 <span className="badge rounded-pill bg-danger-subtle text-danger small">Disbursed</span>
@@ -522,23 +548,19 @@ export default function ProfitLoss() {
 
         {/* 3. Net Operating Yield */}
         <div className="col-12 col-sm-6 col-xl-3">
-          <div className="pnl-stat-card-luxury h-100 d-flex flex-column justify-content-between">
+          <div className="pnl-stat-card-luxury h-100 d-flex flex-column justify-content-between p-3 p-md-4">
             <div>
               <div className="d-flex justify-content-between align-items-start mb-2">
-                <span className="small text-secondary fw-semibold">
+                <span className="small text-secondary fw-semibold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
                   {periodMetrics.isProfit ? 'Net Operating Profit' : 'Operating Deficit'}
                 </span>
                 <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                   style={{
-                    width: 44,
-                    height: 44,
-                    minWidth: 44,
-                    minHeight: 44,
-                    aspectRatio: '1 / 1',
-                    borderRadius: '50%',
-                    flexShrink: 0,
-                    display: 'grid',
-                    placeItems: 'center',
+                    width: 42,
+                    height: 42,
+                    minWidth: 42,
+                    minHeight: 42,
                     background: periodMetrics.isProfit ? '#e8f5e9' : '#fff1f2',
                     color: periodMetrics.isProfit ? '#2e7d32' : '#e11d48',
                   }}
@@ -562,15 +584,39 @@ export default function ProfitLoss() {
               </span>
             </div>
 
-            <div className="mt-3">
-              <svg viewBox="0 0 100 24" className="w-100" style={{ height: 26, overflow: 'visible' }}>
-                <path
-                  d={periodMetrics.isProfit ? "M0,20 Q30,15 60,8 T100,2" : "M0,4 Q30,10 60,16 T100,22"}
-                  fill="none"
-                  stroke={periodMetrics.isProfit ? "#10b981" : "#e11d48"}
-                  strokeWidth="2.5"
-                />
-              </svg>
+            <div className="mt-2">
+              <div style={{ width: '100%', height: 40, marginTop: 4, marginBottom: 4 }}>
+                <ResponsiveContainer width="100%" height={40}>
+                  <AreaChart
+                    data={[
+                      { val: Math.round(Math.abs(periodMetrics.netProfit) * 0.35) || 8 },
+                      { val: Math.round(Math.abs(periodMetrics.netProfit) * 0.5) || 12 },
+                      { val: Math.round(Math.abs(periodMetrics.netProfit) * 0.45) || 10 },
+                      { val: Math.round(Math.abs(periodMetrics.netProfit) * 0.72) || 18 },
+                      { val: Math.round(Math.abs(periodMetrics.netProfit) * 0.8) || 20 },
+                      { val: Math.round(Math.abs(periodMetrics.netProfit) * 0.94) || 26 },
+                      { val: Math.abs(periodMetrics.netProfit) || 30 },
+                    ]}
+                    margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="pnlGradNet" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={periodMetrics.isProfit ? '#10b981' : '#e11d48'} stopOpacity={0.28} />
+                        <stop offset="100%" stopColor={periodMetrics.isProfit ? '#10b981' : '#e11d48'} stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
+                    <Area
+                      type="monotone"
+                      dataKey="val"
+                      stroke={periodMetrics.isProfit ? '#10b981' : '#e11d48'}
+                      strokeWidth={2}
+                      fill="url(#pnlGradNet)"
+                      dot={false}
+                      isAnimationActive={false}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
               <div className="d-flex align-items-center justify-content-between small text-secondary mt-1">
                 <span>{periodMetrics.isProfit ? 'Operating in Profit' : 'Recovering Cost'}</span>
                 <span
@@ -589,21 +635,19 @@ export default function ProfitLoss() {
 
         {/* 4. Delivery Pipeline Revenue */}
         <div className="col-12 col-sm-6 col-xl-3">
-          <div className="pnl-stat-card-luxury h-100 d-flex flex-column justify-content-between">
+          <div className="pnl-stat-card-luxury h-100 d-flex flex-column justify-content-between p-3 p-md-4">
             <div>
               <div className="d-flex justify-content-between align-items-start mb-2">
-                <span className="small text-secondary fw-semibold">Pending Delivery Pipeline</span>
+                <span className="small text-secondary fw-semibold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Pending Delivery Pipeline
+                </span>
                 <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                   style={{
-                    width: 44,
-                    height: 44,
-                    minWidth: 44,
-                    minHeight: 44,
-                    aspectRatio: '1 / 1',
-                    borderRadius: '50%',
-                    flexShrink: 0,
-                    display: 'grid',
-                    placeItems: 'center',
+                    width: 42,
+                    height: 42,
+                    minWidth: 42,
+                    minHeight: 42,
                     background: '#e0f2fe',
                     color: '#0369a1',
                   }}
@@ -619,17 +663,31 @@ export default function ProfitLoss() {
               </span>
             </div>
 
-            <div className="mt-3">
-              <svg viewBox="0 0 100 24" className="w-100" style={{ height: 26, overflow: 'visible' }}>
-                <defs>
-                  <linearGradient id="pnlGradBlue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path d="M0,15 Q30,18 60,10 T100,5" fill="none" stroke="#3b82f6" strokeWidth="2.5" />
-                <path d="M0,15 Q30,18 60,10 T100,5 L100,24 L0,24 Z" fill="url(#pnlGradBlue)" />
-              </svg>
+            <div className="mt-2">
+              <div style={{ width: '100%', height: 40, marginTop: 4, marginBottom: 4 }}>
+                <ResponsiveContainer width="100%" height={40}>
+                  <AreaChart
+                    data={[
+                      { val: Math.round(periodMetrics.pendingIncome * 0.4) || 6 },
+                      { val: Math.round(periodMetrics.pendingIncome * 0.5) || 10 },
+                      { val: Math.round(periodMetrics.pendingIncome * 0.65) || 14 },
+                      { val: Math.round(periodMetrics.pendingIncome * 0.72) || 16 },
+                      { val: Math.round(periodMetrics.pendingIncome * 0.85) || 20 },
+                      { val: Math.round(periodMetrics.pendingIncome * 0.95) || 24 },
+                      { val: periodMetrics.pendingIncome || 28 },
+                    ]}
+                    margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient id="pnlGradBlue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#0284c7" stopOpacity={0.28} />
+                        <stop offset="100%" stopColor="#0284c7" stopOpacity={0.02} />
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="val" stroke="#0284c7" strokeWidth={2} fill="url(#pnlGradBlue)" dot={false} isAnimationActive={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
               <div className="d-flex align-items-center justify-content-between small text-secondary mt-1">
                 <span>{periodMetrics.pendingCount} shipments queued</span>
                 <span className="badge rounded-pill bg-primary-subtle text-primary small">Escrow Queue</span>

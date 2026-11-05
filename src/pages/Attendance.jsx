@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from 'recharts'
+import {
   CalendarCheck,
   Search,
   Users,
@@ -308,75 +313,226 @@ export default function Attendance() {
         </button>
       </div>
 
+      {/* 4 Stat Cards with Area Sparklines */}
       <div className="row g-3 mb-4">
+        {/* 1. Present Today */}
         <div className="col-12 col-sm-6 col-xl-3">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-body d-flex align-items-center gap-3">
-              <div className="rounded-3 bg-success-subtle text-success p-3">
-                <CheckCircle2 size={24} />
-              </div>
-              <div>
-                <div className="text-secondary small">
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #10b981' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
                   Present Today
-                </div>
-                <div className="fs-3 fw-bold">
-                  {todayPresent}
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#e8f5e9', color: '#166534' }}
+                >
+                  <CheckCircle2 size={20} />
                 </div>
               </div>
+              <div className="h3 fw-bold text-success mb-0">{todayPresent}</div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(todayPresent - 1, 0) },
+                    { val: Math.max(todayPresent, 1) },
+                    { val: Math.max(todayPresent, 1) },
+                    { val: Math.max(todayPresent, 1) },
+                    { val: todayPresent },
+                    { val: todayPresent },
+                    { val: todayPresent },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="attSparkPres" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} fill="url(#attSparkPres)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>On-field workforce</span>
+              <span className="badge rounded-pill bg-success-subtle text-success small">Present</span>
             </div>
           </div>
         </div>
 
+        {/* 2. Half Days Today */}
         <div className="col-12 col-sm-6 col-xl-3">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-body d-flex align-items-center gap-3">
-              <div className="rounded-3 bg-warning-subtle text-warning p-3">
-                <Clock3 size={24} />
-              </div>
-              <div>
-                <div className="text-secondary small">
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #f59e0b' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
                   Half Days Today
-                </div>
-                <div className="fs-3 fw-bold">
-                  {todayHalfDay}
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#fef3c7', color: '#b45309' }}
+                >
+                  <Clock3 size={20} />
                 </div>
               </div>
+              <div className="h3 fw-bold text-warning mb-0">{todayHalfDay}</div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(todayHalfDay - 1, 0) },
+                    { val: todayHalfDay },
+                    { val: todayHalfDay },
+                    { val: Math.max(todayHalfDay + 1, 1) },
+                    { val: todayHalfDay },
+                    { val: todayHalfDay },
+                    { val: todayHalfDay },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="attSparkHalf" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#f59e0b" strokeWidth={2} fill="url(#attSparkHalf)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Partial shifts logged</span>
+              <span className="badge rounded-pill bg-warning-subtle text-warning-emphasis small">Half Day</span>
             </div>
           </div>
         </div>
 
+        {/* 3. Absent Today */}
         <div className="col-12 col-sm-6 col-xl-3">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-body d-flex align-items-center gap-3">
-              <div className="rounded-3 bg-danger-subtle text-danger p-3">
-                <XCircle size={24} />
-              </div>
-              <div>
-                <div className="text-secondary small">
+          <div
+            className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between"
+            style={{ borderTop: `4px solid ${todayAbsent > 0 ? '#ef4444' : '#10b981'}` }}
+          >
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
                   Absent Today
-                </div>
-                <div className="fs-3 fw-bold">
-                  {todayAbsent}
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    minWidth: 40,
+                    minHeight: 40,
+                    background: todayAbsent > 0 ? '#fff1f2' : '#e8f5e9',
+                    color: todayAbsent > 0 ? '#e11d48' : '#2e7d32',
+                  }}
+                >
+                  <XCircle size={20} />
                 </div>
               </div>
+              <div className={`h3 fw-bold mb-0 ${todayAbsent > 0 ? 'text-danger' : 'text-success'}`}>{todayAbsent}</div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: todayAbsent > 0 ? 0 : 0 },
+                    { val: todayAbsent > 0 ? 1 : 0 },
+                    { val: todayAbsent > 0 ? 1 : 0 },
+                    { val: todayAbsent },
+                    { val: todayAbsent },
+                    { val: todayAbsent },
+                    { val: todayAbsent },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="attSparkAbs" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={todayAbsent > 0 ? '#ef4444' : '#10b981'} stopOpacity={0.28} />
+                      <stop offset="100%" stopColor={todayAbsent > 0 ? '#ef4444' : '#10b981'} stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="val"
+                    stroke={todayAbsent > 0 ? '#ef4444' : '#10b981'}
+                    strokeWidth={2}
+                    fill="url(#attSparkAbs)"
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>
+                {todayAbsent > 0 ? 'Unscheduled leaves' : 'Full roster active'}
+              </span>
+              <span className={`badge rounded-pill small ${todayAbsent > 0 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'}`}>
+                {todayAbsent > 0 ? 'Absent' : 'None'}
+              </span>
             </div>
           </div>
         </div>
 
+        {/* 4. Today's Wage Total */}
         <div className="col-12 col-sm-6 col-xl-3">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-body d-flex align-items-center gap-3">
-              <div className="rounded-3 bg-primary-subtle text-primary p-3">
-                <Wallet size={24} />
-              </div>
-              <div>
-                <div className="text-secondary small">
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #0284c7' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
                   Today's Wage Total
-                </div>
-                <div className="fs-5 fw-bold">
-                  {formatCurrency(todayWages)}
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#e0f2fe', color: '#0369a1' }}
+                >
+                  <Wallet size={20} />
                 </div>
               </div>
+              <div className="h3 fw-bold text-dark mb-0 fs-5">{formatCurrency(todayWages)}</div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.round(todayWages * 0.35) || 10 },
+                    { val: Math.round(todayWages * 0.48) || 14 },
+                    { val: Math.round(todayWages * 0.6) || 18 },
+                    { val: Math.round(todayWages * 0.72) || 20 },
+                    { val: Math.round(todayWages * 0.85) || 24 },
+                    { val: Math.round(todayWages * 0.95) || 28 },
+                    { val: todayWages || 30 },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="attSparkWage" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0284c7" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#0284c7" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#0284c7" strokeWidth={2} fill="url(#attSparkWage)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Accrued daily liability</span>
+              <span className="badge rounded-pill bg-primary-subtle text-primary small">Payroll</span>
             </div>
           </div>
         </div>

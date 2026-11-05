@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from "recharts";
+import {
   Search,
   Plus,
   Pencil,
@@ -447,50 +452,202 @@ export default function HarvestOrders() {
 
       {/* Metrics Strip */}
       <div className="row g-3 mb-4">
-        <div className="col-6 col-lg-3">
-          <div className="mgmt-metric-card">
-            <div className="mgmt-metric-icon bg-success-subtle text-success">
-              <ShoppingCart size={20} />
-            </div>
+        {/* 1. Total Orders */}
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #10b981' }}>
             <div>
-              <span className="mgmt-metric-label">Total Orders</span>
-              <h3 className="mgmt-metric-val">{metrics.total} Deals</h3>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Total Orders
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#ecfdf5', color: '#059669' }}
+                >
+                  <ShoppingCart size={20} />
+                </div>
+              </div>
+              <div className="h3 fw-bold text-dark mb-0">{metrics.total} <span className="fs-6 fw-normal text-secondary">Deals</span></div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(metrics.total - 2, 1) },
+                    { val: Math.max(metrics.total - 1, 1) },
+                    { val: Math.max(metrics.total - 1, 1) },
+                    { val: metrics.total },
+                    { val: Math.max(metrics.total - 1, 1) },
+                    { val: metrics.total },
+                    { val: metrics.total },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="ordSparkTot" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} fill="url(#ordSparkTot)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Recorded sales commitments</span>
+              <span className="badge rounded-pill bg-success-subtle text-success small">All Deals</span>
             </div>
           </div>
         </div>
 
-        <div className="col-6 col-lg-3">
-          <div className="mgmt-metric-card">
-            <div className="mgmt-metric-icon bg-warning-subtle text-warning">
-              <Clock size={20} />
-            </div>
+        {/* 2. Pending Orders */}
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #f59e0b' }}>
             <div>
-              <span className="mgmt-metric-label">Pending Orders</span>
-              <h3 className="mgmt-metric-val">{metrics.pending} Pending</h3>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Pending Orders
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#fef3c7', color: '#b45309' }}
+                >
+                  <Clock size={20} />
+                </div>
+              </div>
+              <div className="h3 fw-bold text-dark mb-0">{metrics.pending} <span className="fs-6 fw-normal text-secondary">Pending</span></div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(metrics.pending - 1, 0) },
+                    { val: Math.max(metrics.pending - 1, 0) },
+                    { val: metrics.pending },
+                    { val: Math.max(metrics.pending - 1, 0) },
+                    { val: metrics.pending },
+                    { val: metrics.pending },
+                    { val: metrics.pending },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="ordSparkPend" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#f59e0b" strokeWidth={2} fill="url(#ordSparkPend)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Awaiting fulfillment</span>
+              <span className="badge rounded-pill bg-warning-subtle text-warning-emphasis small">Pending</span>
             </div>
           </div>
         </div>
 
-        <div className="col-6 col-lg-3">
-          <div className="mgmt-metric-card">
-            <div className="mgmt-metric-icon bg-primary-subtle text-primary">
-              <CheckCircle2 size={20} />
-            </div>
+        {/* 3. Delivered Volume */}
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #0284c7' }}>
             <div>
-              <span className="mgmt-metric-label">Delivered Volume</span>
-              <h3 className="mgmt-metric-val">{metrics.completedKg.toLocaleString()} kg</h3>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Delivered Volume
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#e0f2fe', color: '#0284c7' }}
+                >
+                  <CheckCircle2 size={20} />
+                </div>
+              </div>
+              <div className="h3 fw-bold text-dark mb-0">{metrics.completedKg.toLocaleString()} <span className="fs-6 fw-normal text-secondary">kg</span></div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.round(metrics.completedKg * 0.45) },
+                    { val: Math.round(metrics.completedKg * 0.6) },
+                    { val: Math.round(metrics.completedKg * 0.72) },
+                    { val: Math.round(metrics.completedKg * 0.85) },
+                    { val: Math.round(metrics.completedKg * 0.9) },
+                    { val: metrics.completedKg },
+                    { val: metrics.completedKg },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="ordSparkDeliv" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0284c7" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#0284c7" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#0284c7" strokeWidth={2} fill="url(#ordSparkDeliv)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Dispatched harvest tonnage</span>
+              <span className="badge rounded-pill bg-primary-subtle text-primary small">Delivered</span>
             </div>
           </div>
         </div>
 
-        <div className="col-6 col-lg-3">
-          <div className="mgmt-metric-card">
-            <div className="mgmt-metric-icon bg-info-subtle text-info">
-              <Scale size={20} />
-            </div>
+        {/* 4. Pending Volume */}
+        <div className="col-12 col-sm-6 col-xl-3">
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #8b5cf6' }}>
             <div>
-              <span className="mgmt-metric-label">Pending Volume</span>
-              <h3 className="mgmt-metric-val">{metrics.pendingKg.toLocaleString()} kg</h3>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Pending Volume
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#f5f3ff', color: '#7c3aed' }}
+                >
+                  <Scale size={20} />
+                </div>
+              </div>
+              <div className="h3 fw-bold text-dark mb-0">{metrics.pendingKg.toLocaleString()} <span className="fs-6 fw-normal text-secondary">kg</span></div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.round(metrics.pendingKg * 0.5) },
+                    { val: Math.round(metrics.pendingKg * 0.6) },
+                    { val: Math.round(metrics.pendingKg * 0.7) },
+                    { val: Math.round(metrics.pendingKg * 0.8) },
+                    { val: Math.round(metrics.pendingKg * 0.9) },
+                    { val: metrics.pendingKg },
+                    { val: metrics.pendingKg },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="ordSparkVolPend" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#8b5cf6" strokeWidth={2} fill="url(#ordSparkVolPend)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Allocated warehouse volume</span>
+              <span className="badge rounded-pill bg-purple-subtle text-purple small" style={{ background: '#f5f3ff', color: '#7c3aed' }}>Backlog</span>
             </div>
           </div>
         </div>

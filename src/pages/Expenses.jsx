@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from 'recharts'
+import {
   Receipt,
   Plus,
   Search,
@@ -342,57 +347,162 @@ export default function Expenses() {
         </div>
       )}
 
-      {/* 3 Metric Cards */}
+      {/* 3 Metric Cards with Area Sparklines */}
       <div className="row g-3 mb-4">
+        {/* 1. Total Farm Expenditure */}
         <div className="col-12 col-md-4">
-          <div className="pnl-stat-card card--expense h-100">
-            <div className="stat-card-top">
-              <span className="stat-card-title fw-semibold">Total Farm Expenditure</span>
-              <div className="stat-card-icon" style={{ background: '#ffebee', color: '#b71c1c' }}>
-                <Wallet size={22} />
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #ef4444' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.05em' }}>
+                  Total Farm Expenditure
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 42, height: 42, minWidth: 42, minHeight: 42, background: '#ffebee', color: '#b71c1c' }}
+                >
+                  <Wallet size={22} />
+                </div>
+              </div>
+              <div className="h2 fw-bold text-danger mb-0">
+                {formatPKR(totalExpenses)}
               </div>
             </div>
-            <div className="stat-card-value text-danger">
-              {formatPKR(totalExpenses)}
+
+            {/* Sparkline */}
+            <div style={{ width: '100%', height: 42, marginTop: 6, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={42}>
+                <AreaChart
+                  data={[
+                    { val: Math.round(totalExpenses * 0.38) || 10 },
+                    { val: Math.round(totalExpenses * 0.52) || 15 },
+                    { val: Math.round(totalExpenses * 0.64) || 18 },
+                    { val: Math.round(totalExpenses * 0.72) || 20 },
+                    { val: Math.round(totalExpenses * 0.85) || 24 },
+                    { val: Math.round(totalExpenses * 0.94) || 28 },
+                    { val: totalExpenses || 30 },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="expSparkTotal" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#ef4444" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#ef4444" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#ef4444" strokeWidth={2} fill="url(#expSparkTotal)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <div className="stat-card-subtitle d-flex justify-content-between align-items-center">
-              <span>{expenses.length} expense transactions</span>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary">{expenses.length} expense transactions</span>
               <span className="badge rounded-pill bg-danger-subtle text-danger small">Opex Outflow</span>
             </div>
           </div>
         </div>
 
+        {/* 2. Cost Distribution */}
         <div className="col-12 col-md-4">
-          <div className="pnl-stat-card card--pipeline h-100">
-            <div className="stat-card-top">
-              <span className="stat-card-title fw-semibold">Cost Distribution</span>
-              <div className="stat-card-icon" style={{ background: '#e0f2fe', color: '#0369a1' }}>
-                <Tag size={22} />
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #0284c7' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.05em' }}>
+                  Cost Distribution
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 42, height: 42, minWidth: 42, minHeight: 42, background: '#e0f2fe', color: '#0369a1' }}
+                >
+                  <Tag size={22} />
+                </div>
+              </div>
+              <div className="h2 fw-bold text-dark mb-0">
+                {CATEGORIES.length}
               </div>
             </div>
-            <div className="stat-card-value text-dark">
-              {CATEGORIES.length}
+
+            {/* Sparkline */}
+            <div style={{ width: '100%', height: 42, marginTop: 6, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={42}>
+                <AreaChart
+                  data={[
+                    { val: 4 },
+                    { val: 5 },
+                    { val: 6 },
+                    { val: 7 },
+                    { val: 8 },
+                    { val: CATEGORIES.length },
+                    { val: CATEGORIES.length },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="expSparkCat" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0284c7" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#0284c7" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#0284c7" strokeWidth={2} fill="url(#expSparkCat)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <div className="stat-card-subtitle d-flex justify-content-between align-items-center">
-              <span>Active operational categories</span>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary">Active operational categories</span>
               <span className="badge rounded-pill bg-light text-secondary border small">Categories</span>
             </div>
           </div>
         </div>
 
+        {/* 3. Highest Cost Center */}
         <div className="col-12 col-md-4">
-          <div className="pnl-stat-card card--income h-100">
-            <div className="stat-card-top">
-              <span className="stat-card-title fw-semibold">Highest Cost Center</span>
-              <div className="stat-card-icon" style={{ background: '#e8f5e9', color: '#1b5e20' }}>
-                <TrendingDown size={22} />
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #10b981' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.05em' }}>
+                  Highest Cost Center
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 42, height: 42, minWidth: 42, minHeight: 42, background: '#e8f5e9', color: '#1b5e20' }}
+                >
+                  <TrendingDown size={22} />
+                </div>
+              </div>
+              <div className="h2 fw-bold text-dark mb-0 text-truncate" style={{ fontSize: '1.45rem' }}>
+                {topCategory.name}
               </div>
             </div>
-            <div className="stat-card-value text-dark" style={{ fontSize: '1.45rem' }}>
-              {topCategory.name}
+
+            {/* Sparkline */}
+            <div style={{ width: '100%', height: 42, marginTop: 6, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={42}>
+                <AreaChart
+                  data={[
+                    { val: Math.round(topCategory.amount * 0.35) || 10 },
+                    { val: Math.round(topCategory.amount * 0.48) || 14 },
+                    { val: Math.round(topCategory.amount * 0.6) || 18 },
+                    { val: Math.round(topCategory.amount * 0.72) || 20 },
+                    { val: Math.round(topCategory.amount * 0.85) || 24 },
+                    { val: Math.round(topCategory.amount * 0.95) || 28 },
+                    { val: topCategory.amount || 30 },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="expSparkTop" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} fill="url(#expSparkTop)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <div className="stat-card-subtitle d-flex justify-content-between align-items-center">
-              <span>{formatPKR(topCategory.amount)} absorbed</span>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary">{formatPKR(topCategory.amount)} absorbed</span>
               <span className="badge rounded-pill bg-light text-secondary border small">Peak Center</span>
             </div>
           </div>

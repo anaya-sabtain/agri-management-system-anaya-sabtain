@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from 'recharts'
+import {
   Package,
   Plus,
   Search,
@@ -337,79 +342,180 @@ export default function Inventory() {
         </div>
       )}
 
-      {/* 3 Metric Cards */}
+      {/* 3 Metric Cards with Area Sparklines */}
       <div className="row g-3 mb-4">
+        {/* 1. Tracked Supply Items */}
         <div className="col-12 col-md-4">
-          <div className="pnl-stat-card card--pipeline h-100">
-            <div className="stat-card-top">
-              <span className="stat-card-title fw-semibold">Tracked Supply Items</span>
-              <div className="stat-card-icon" style={{ background: '#e0f2fe', color: '#0369a1' }}>
-                <Boxes size={22} />
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #0284c7' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.05em' }}>
+                  Tracked Supply Items
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 42, height: 42, minWidth: 42, minHeight: 42, background: '#e0f2fe', color: '#0369a1' }}
+                >
+                  <Boxes size={22} />
+                </div>
               </div>
+              <div className="h2 fw-bold text-dark mb-0">{items.length}</div>
             </div>
-            <div className="stat-card-value text-dark">
-              {items.length}
+
+            {/* Sparkline */}
+            <div style={{ width: '100%', height: 42, marginTop: 6, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={42}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(items.length - 2, 1) },
+                    { val: Math.max(items.length - 1, 1) },
+                    { val: Math.max(items.length - 1, 2) },
+                    { val: items.length },
+                    { val: items.length },
+                    { val: items.length },
+                    { val: items.length },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="invSparkItems" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0284c7" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#0284c7" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#0284c7" strokeWidth={2} fill="url(#invSparkItems)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <div className="stat-card-subtitle d-flex justify-content-between align-items-center">
-              <span>Across {categories.length} item categories</span>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary">Across {categories.length} item categories</span>
               <span className="badge rounded-pill bg-light text-secondary border small">Active Catalog</span>
             </div>
           </div>
         </div>
 
+        {/* 2. Low Stock Threshold */}
         <div className="col-12 col-md-4">
-          <div className={`pnl-stat-card ${lowStockItems.length > 0 ? 'card--expense' : 'card--profit'} h-100`}>
-            <div className="stat-card-top">
-              <span className="stat-card-title fw-semibold">Low Stock Threshold</span>
-              <div
-                className="stat-card-icon"
-                style={{
-                  background: lowStockItems.length > 0 ? '#fff1f2' : '#e8f5e9',
-                  color: lowStockItems.length > 0 ? '#e11d48' : '#2e7d32',
-                }}
-              >
-                <AlertTriangle size={22} />
+          <div
+            className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between"
+            style={{ borderTop: `4px solid ${lowStockItems.length > 0 ? '#ef4444' : '#10b981'}` }}
+          >
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.05em' }}>
+                  Low Stock Threshold
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{
+                    width: 42,
+                    height: 42,
+                    minWidth: 42,
+                    minHeight: 42,
+                    background: lowStockItems.length > 0 ? '#fff1f2' : '#e8f5e9',
+                    color: lowStockItems.length > 0 ? '#e11d48' : '#2e7d32',
+                  }}
+                >
+                  <AlertTriangle size={22} />
+                </div>
+              </div>
+              <div className={`h2 fw-bold mb-0 ${lowStockItems.length > 0 ? 'text-danger' : 'text-success'}`}>
+                {lowStockItems.length}
               </div>
             </div>
-            <div
-              className={`stat-card-value ${
-                lowStockItems.length > 0 ? 'text-danger' : 'text-success'
-              }`}
-            >
-              {lowStockItems.length}
+
+            {/* Sparkline */}
+            <div style={{ width: '100%', height: 42, marginTop: 6, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={42}>
+                <AreaChart
+                  data={[
+                    { val: lowStockItems.length > 0 ? 0 : 0 },
+                    { val: lowStockItems.length > 0 ? 1 : 0 },
+                    { val: lowStockItems.length > 0 ? 1 : 0 },
+                    { val: lowStockItems.length > 0 ? 2 : 0 },
+                    { val: lowStockItems.length > 0 ? 1 : 0 },
+                    { val: lowStockItems.length },
+                    { val: lowStockItems.length },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="invSparkLow" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={lowStockItems.length > 0 ? '#ef4444' : '#10b981'} stopOpacity={0.28} />
+                      <stop offset="100%" stopColor={lowStockItems.length > 0 ? '#ef4444' : '#10b981'} stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="val"
+                    stroke={lowStockItems.length > 0 ? '#ef4444' : '#10b981'}
+                    strokeWidth={2}
+                    fill="url(#invSparkLow)"
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <div className="stat-card-subtitle d-flex justify-content-between align-items-center">
-              <span>
-                {lowStockItems.length > 0
-                  ? 'Replenishment urgently required'
-                  : 'All supplies above minimum'}
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary">
+                {lowStockItems.length > 0 ? 'Replenishment urgently required' : 'All supplies above minimum'}
               </span>
-              <span
-                className={`badge rounded-pill small ${
-                  lowStockItems.length > 0
-                    ? 'bg-danger-subtle text-danger'
-                    : 'bg-success-subtle text-success'
-                }`}
-              >
+              <span className={`badge rounded-pill small ${lowStockItems.length > 0 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'}`}>
                 {lowStockItems.length > 0 ? 'Alert Active' : 'Normal'}
               </span>
             </div>
           </div>
         </div>
 
+        {/* 3. Warehouse Stock Valuation */}
         <div className="col-12 col-md-4">
-          <div className="pnl-stat-card card--income h-100">
-            <div className="stat-card-top">
-              <span className="stat-card-title fw-semibold">Warehouse Stock Valuation</span>
-              <div className="stat-card-icon" style={{ background: '#e8f5e9', color: '#1b5e20' }}>
-                <Wallet size={22} />
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #10b981' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.05em' }}>
+                  Warehouse Stock Valuation
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 42, height: 42, minWidth: 42, minHeight: 42, background: '#e8f5e9', color: '#1b5e20' }}
+                >
+                  <Wallet size={22} />
+                </div>
               </div>
+              <div className="h2 fw-bold text-success mb-0">{formatPKR(totalValue)}</div>
             </div>
-            <div className="stat-card-value text-success">
-              {formatPKR(totalValue)}
+
+            {/* Sparkline */}
+            <div style={{ width: '100%', height: 42, marginTop: 6, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={42}>
+                <AreaChart
+                  data={[
+                    { val: Math.round(totalValue * 0.4) || 10 },
+                    { val: Math.round(totalValue * 0.52) || 14 },
+                    { val: Math.round(totalValue * 0.65) || 18 },
+                    { val: Math.round(totalValue * 0.7) || 20 },
+                    { val: Math.round(totalValue * 0.85) || 24 },
+                    { val: Math.round(totalValue * 0.94) || 28 },
+                    { val: totalValue || 30 },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="invSparkVal" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} fill="url(#invSparkVal)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <div className="stat-card-subtitle d-flex justify-content-between align-items-center">
-              <span>Capital tied in inventory</span>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary">Capital tied in inventory</span>
               <span className="badge rounded-pill bg-success-subtle text-success small">PKR Asset</span>
             </div>
           </div>

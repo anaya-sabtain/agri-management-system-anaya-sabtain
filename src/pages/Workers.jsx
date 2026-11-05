@@ -14,6 +14,11 @@ import {
   CreditCard,
 } from 'lucide-react'
 import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from 'recharts'
+import {
   workerAdded,
   workerUpdated,
   workerDeleted,
@@ -203,44 +208,169 @@ export default function Workers() {
       </div>
 
       <div className="row g-3 mb-4">
+        {/* 1. Total Workers */}
         <div className="col-12 col-sm-6 col-xl-4">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <div className="text-secondary small">Total Workers</div>
-                <div className="fs-3 fw-bold">{workers.length}</div>
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #10b981' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Total Workers
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#ecfdf5', color: '#059669' }}
+                >
+                  <Users size={20} />
+                </div>
               </div>
-              <div className="rounded-3 bg-success bg-opacity-10 text-success p-3">
-                <Users size={24} />
-              </div>
+              <div className="h3 fw-bold text-dark mb-0">{workers.length}</div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(workers.length - 2, 1) },
+                    { val: Math.max(workers.length - 1, 1) },
+                    { val: Math.max(workers.length - 1, 1) },
+                    { val: workers.length },
+                    { val: Math.max(workers.length - 1, 1) },
+                    { val: workers.length },
+                    { val: workers.length },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="wrkSparkTot" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#10b981" strokeWidth={2} fill="url(#wrkSparkTot)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Registered farm workforce</span>
+              <span className="badge rounded-pill bg-success-subtle text-success small">Roster Active</span>
             </div>
           </div>
         </div>
 
+        {/* 2. Active Workers */}
         <div className="col-12 col-sm-6 col-xl-4">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <div className="text-secondary small">Active Workers</div>
-                <div className="fs-3 fw-bold">{activeCount}</div>
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: '4px solid #0284c7' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Active Workers
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 40, height: 40, minWidth: 40, minHeight: 40, background: '#e0f2fe', color: '#0284c7' }}
+                >
+                  <UserCheck size={20} />
+                </div>
               </div>
-              <div className="rounded-3 bg-primary bg-opacity-10 text-primary p-3">
-                <UserCheck size={24} />
-              </div>
+              <div className="h3 fw-bold text-dark mb-0">{activeCount}</div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: Math.max(activeCount - 1, 0) },
+                    { val: Math.max(activeCount - 1, 0) },
+                    { val: activeCount },
+                    { val: Math.max(activeCount - 1, 0) },
+                    { val: activeCount },
+                    { val: activeCount },
+                    { val: activeCount },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="wrkSparkAct" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0284c7" stopOpacity={0.28} />
+                      <stop offset="100%" stopColor="#0284c7" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area type="monotone" dataKey="val" stroke="#0284c7" strokeWidth={2} fill="url(#wrkSparkAct)" dot={false} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Deployable on field</span>
+              <span className="badge rounded-pill bg-primary-subtle text-primary small">Deployable</span>
             </div>
           </div>
         </div>
 
+        {/* 3. Inactive Workers */}
         <div className="col-12 col-sm-6 col-xl-4">
-          <div className="card border-0 shadow-sm h-100">
-            <div className="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <div className="text-secondary small">Inactive Workers</div>
-                <div className="fs-3 fw-bold">{inactiveCount}</div>
+          <div className="card border-0 shadow-sm rounded-4 h-100 p-3 p-md-4 d-flex flex-column justify-content-between" style={{ borderTop: inactiveCount > 0 ? '4px solid #f59e0b' : '4px solid #94a3b8' }}>
+            <div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <span className="text-secondary small fw-bold text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.04em' }}>
+                  Inactive Workers
+                </span>
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    minWidth: 40,
+                    minHeight: 40,
+                    background: inactiveCount > 0 ? '#fef3c7' : '#f1f5f9',
+                    color: inactiveCount > 0 ? '#b45309' : '#64748b',
+                  }}
+                >
+                  <UserX size={20} />
+                </div>
               </div>
-              <div className="rounded-3 bg-secondary bg-opacity-10 text-secondary p-3">
-                <UserX size={24} />
-              </div>
+              <div className="h3 fw-bold text-dark mb-0">{inactiveCount}</div>
+            </div>
+
+            <div style={{ width: '100%', height: 38, marginTop: 4, marginBottom: 4 }}>
+              <ResponsiveContainer width="100%" height={38}>
+                <AreaChart
+                  data={[
+                    { val: inactiveCount > 0 ? 0 : 0 },
+                    { val: inactiveCount > 0 ? 1 : 0 },
+                    { val: inactiveCount > 0 ? 0 : 0 },
+                    { val: inactiveCount },
+                    { val: inactiveCount },
+                    { val: inactiveCount },
+                    { val: inactiveCount },
+                  ]}
+                  margin={{ top: 2, right: 0, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="wrkSparkInact" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={inactiveCount > 0 ? '#f59e0b' : '#64748b'} stopOpacity={0.28} />
+                      <stop offset="100%" stopColor={inactiveCount > 0 ? '#f59e0b' : '#64748b'} stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="val"
+                    stroke={inactiveCount > 0 ? '#f59e0b' : '#64748b'}
+                    strokeWidth={2}
+                    fill="url(#wrkSparkInact)"
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center pt-1 mt-auto">
+              <span className="small text-secondary" style={{ fontSize: '11.5px' }}>Off-duty / On leave</span>
+              <span className={`badge rounded-pill ${inactiveCount > 0 ? 'bg-warning-subtle text-warning-emphasis' : 'bg-secondary-subtle text-secondary'} small`}>
+                {inactiveCount > 0 ? `${inactiveCount} Inactive` : 'Zero Inactive'}
+              </span>
             </div>
           </div>
         </div>
