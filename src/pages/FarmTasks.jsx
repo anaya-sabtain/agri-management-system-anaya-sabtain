@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   ResponsiveContainer,
@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 
 import { selectAllTasks, taskAdded, taskUpdated, taskDeleted } from '../store/tasksSlice'
+import { fetchTasks } from '../features/tasks/taskSlice'
 import { selectAllCrops } from '../store/cropsSlice'
 import { selectUserRole } from '../store/authSlice'
 import { activityAdded } from '../store/activitySlice'
@@ -54,7 +55,7 @@ function formatDate(dateStr) {
 
 export default function FarmTasks() {
   const dispatch = useDispatch()
-  const tasks = useSelector(selectAllTasks)
+  const { tasks = [], loading, error } = useSelector((state) => state.tasks || {})
   const crops = useSelector(selectAllCrops)
   const role = useSelector(selectUserRole)
   const isAdmin = role === 'Admin'
@@ -67,6 +68,10 @@ export default function FarmTasks() {
   const [filter, setFilter] = useState('All')
   const [message, setMessage] = useState('')
   const [editingId, setEditingId] = useState(null)
+
+  useEffect(() => {
+    dispatch(fetchTasks())
+  }, [dispatch])
 
   const today = new Date().toLocaleDateString('en-CA')
 
@@ -276,6 +281,12 @@ export default function FarmTasks() {
           </span>
         </div>
       </div>
+
+      {error && (
+        <div className="alert alert-danger rounded-3 mb-4" role="alert">
+          {error}
+        </div>
+      )}
 
       {message && (
         <div className="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="status">
@@ -656,7 +667,14 @@ export default function FarmTasks() {
             </div>
 
             <div className="p-3 p-md-4">
-              {visibleTasks.length === 0 ? (
+              {loading ? (
+                <div className="text-center py-5">
+                  <div className="spinner-border text-success" role="status">
+                    <span className="visually-hidden">Loading tasks...</span>
+                  </div>
+                  <p className="text-secondary small mt-3">Loading tasks from server...</p>
+                </div>
+              ) : visibleTasks.length === 0 ? (
                 <div className="text-center text-secondary py-5">
                   <CalendarDays size={36} className="mb-2 opacity-50" />
                   <p className="fw-semibold mb-1">No tasks in this view</p>

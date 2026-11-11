@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   ResponsiveContainer,
@@ -27,6 +27,7 @@ import {
   selectAllExpenses,
   selectTotalExpenses,
 } from '../store/expensesSlice'
+import { fetchExpenses } from '../features/expenses/expenseSlice'
 import { selectAllCrops } from '../store/cropsSlice'
 import { selectUserRole } from '../store/authSlice'
 import { activityAdded } from '../store/activitySlice'
@@ -78,7 +79,9 @@ function formatDate(dateStr) {
 
 export default function Expenses() {
   const dispatch = useDispatch()
-  const expenses = useSelector(selectAllExpenses)
+  const { expenses = [], loading, error: reduxError } = useSelector(
+    (state) => state.expenses || {}
+  )
   const totalExpenses = useSelector(selectTotalExpenses)
   const crops = useSelector(selectAllCrops)
   const role = useSelector(selectUserRole)
@@ -91,6 +94,10 @@ export default function Expenses() {
   const [categoryFilter, setCategoryFilter] = useState('All')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  useEffect(() => {
+    dispatch(fetchExpenses())
+  }, [dispatch])
 
   // Top category calculation
   const topCategory = useMemo(() => {
@@ -333,9 +340,9 @@ export default function Expenses() {
         </div>
       </div>
 
-      {error && (
+      {(error || reduxError) && (
         <div className="alert alert-danger alert-dismissible fade show rounded-3 mb-4" role="alert">
-          {error}
+          {error || reduxError}
           <button type="button" className="btn-close" aria-label="Close" onClick={() => setError('')} />
         </div>
       )}
@@ -697,7 +704,14 @@ export default function Expenses() {
           </div>
         </div>
 
-        {visibleExpenses.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-5">
+            <div className="spinner-border text-success" role="status">
+              <span className="visually-hidden">Loading expenses...</span>
+            </div>
+            <p className="text-secondary small mt-3">Loading expenses from server...</p>
+          </div>
+        ) : visibleExpenses.length === 0 ? (
           <div className="text-center text-secondary py-5">
             <Receipt size={36} className="mb-2 opacity-50" />
             <p className="fw-semibold mb-1">No expense records found</p>

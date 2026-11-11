@@ -2,6 +2,7 @@ import { createSlice, nanoid } from '@reduxjs/toolkit'
 
 const initialState = {
   items: [],
+  expenses: [],
   error: null,
 }
 
@@ -72,15 +73,16 @@ export const {
   expensesErrorSet,
 } = expensesSlice.actions
 
-export const selectAllExpenses = (state) => state.expenses.items
+export const selectAllExpenses = (state) =>
+  state.expenses?.expenses || state.expenses?.items || []
 
 export const selectExpenseById = (state, expenseId) =>
-  state.expenses.items.find(
+  (state.expenses?.expenses || state.expenses?.items || []).find(
     (expense) => expense.id === expenseId
   )
 
 export const selectTotalExpenses = (state) =>
-  state.expenses.items.reduce(
+  (state.expenses?.expenses || state.expenses?.items || []).reduce(
     (total, expense) => total + (Number(expense.amount) || 0),
     0
   )

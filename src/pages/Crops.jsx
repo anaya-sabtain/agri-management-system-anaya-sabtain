@@ -42,6 +42,7 @@ import {
   cropUpdated,
   cropDeleted,
 } from '../store/cropsSlice'
+import { fetchCrops } from '../features/crops/cropSlice'
 import { selectUserRole } from '../store/authSlice'
 import { activityAdded } from '../store/activitySlice'
 
@@ -83,7 +84,9 @@ function getStatusBadge(status) {
 
 export default function Crops() {
   const dispatch = useDispatch()
-  const crops = useSelector(selectAllCrops)
+  const { crops = [], loading, error: reduxError } = useSelector(
+    (state) => state.crops || {}
+  )
   const role = useSelector(selectUserRole)
   const isAdmin = role === 'Admin'
   const [form, setForm] = useState(initialForm);
@@ -116,19 +119,9 @@ export default function Crops() {
     );
   };
 
-  function loadCrops() {
-    try {
-      const savedCrops = getAll(STORAGE_KEYS.CROPS)
-      dispatch(cropsLoaded(savedCrops))
-      setError('')
-    } catch (err) {
-      setError(err.message || 'Could not load crops.')
-    }
-  }
-
   useEffect(() => {
-    loadCrops();
-  }, []);
+    dispatch(fetchCrops());
+  }, [dispatch]);
 
   // Summary Metrics
   const metrics = useMemo(() => {
@@ -585,9 +578,9 @@ export default function Crops() {
       </div>
 
       {/* Notifications */}
-      {error && (
+      {(error || reduxError) && (
         <div className="alert alert-danger d-flex align-items-center gap-2 mb-4" role="alert">
-          {error}
+          {error || reduxError}
         </div>
       )}
 
@@ -835,7 +828,14 @@ export default function Crops() {
 
         {/* Content Body */}
         <div className="card-body p-3 p-md-4">
-          {filteredCrops.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-success" role="status">
+                <span className="visually-hidden">Loading crops...</span>
+              </div>
+              <p className="text-secondary small mt-3">Loading crops from server...</p>
+            </div>
+          ) : filteredCrops.length === 0 ? (
             <div className="text-center py-5">
               <Sprout size={44} className="text-success opacity-50 mb-3" />
               <h3 className="h6 fw-bold">

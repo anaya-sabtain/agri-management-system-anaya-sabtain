@@ -1,6 +1,7 @@
+import { useEffect } from 'react'
 import { Navigate, BrowserRouter, Routes, Route } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { selectIsAuthenticated } from './store/authSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectIsAuthenticated, restoreSession } from './features/auth/authSlice'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import Login from './pages/Login'
 import AppLayout from './components/common/AppLayout'
@@ -31,6 +32,14 @@ function LoginRoute() {
 }
 
 export default function App() {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      dispatch(restoreSession())
+    }
+  }, [dispatch])
+
   return (
     <ThemeProvider>
       <BrowserRouter>

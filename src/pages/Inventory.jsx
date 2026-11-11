@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   ResponsiveContainer,
@@ -28,6 +28,7 @@ import {
   selectLowStockItems,
   selectTotalInventoryValue,
 } from '../store/inventorySlice'
+import { fetchInventory } from '../features/inventory/inventorySlice'
 import { selectUserRole } from '../store/authSlice'
 import { activityAdded } from '../store/activitySlice'
 import { exportToCSV } from '../services/csvExport'
@@ -57,7 +58,9 @@ function formatPKR(amount) {
 
 export default function Inventory() {
   const dispatch = useDispatch()
-  const items = useSelector(selectAllInventory)
+  const { items = [], loading, error: reduxError } = useSelector(
+    (state) => state.inventory || {}
+  )
   const lowStockItems = useSelector(selectLowStockItems)
   const totalValue = useSelector(selectTotalInventoryValue)
   const role = useSelector(selectUserRole)
@@ -71,6 +74,10 @@ export default function Inventory() {
   const [stockFilter, setStockFilter] = useState('All')
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+
+  useEffect(() => {
+    dispatch(fetchInventory())
+  }, [dispatch])
 
   const visibleItems = useMemo(() => {
     return items.filter((item) => {
@@ -522,6 +529,13 @@ export default function Inventory() {
         </div>
       </div>
 
+      {/* Redux API Error */}
+      {reduxError && (
+        <div className="alert alert-danger rounded-4 mb-4 p-3" role="alert">
+          {reduxError}
+        </div>
+      )}
+
       {/* Low Stock Warning Banner */}
       {lowStockItems.length > 0 && (
         <div className="alert alert-warning border-0 shadow-sm d-flex align-items-start gap-3 rounded-4 mb-4 p-3 p-md-4">
@@ -802,7 +816,18 @@ export default function Inventory() {
             </thead>
 
             <tbody>
-              {visibleItems.map((item) => {
+              {loading && (
+                <tr>
+                  <td colSpan={isAdmin ? 8 : 7} className="text-center py-5">
+                    <div className="spinner-border text-success" role="status">
+                      <span className="visually-hidden">Loading inventory...</span>
+                    </div>
+                    <p className="text-secondary small mt-3">Loading inventory from server...</p>
+                  </td>
+                </tr>
+              )}
+
+              {!loading && visibleItems.map((item) => {
                 const isLow =
                   Number(item.quantity) <= Number(item.minimumStock)
                 const val = Number(item.quantity) * Number(item.purchasePrice)
@@ -880,7 +905,7 @@ export default function Inventory() {
                 )
               })}
 
-              {visibleItems.length === 0 && (
+              {!loading && visibleItems.length === 0 && (
                 <tr>
                   <td colSpan={isAdmin ? 8 : 7} className="text-center py-5">
                     <Package

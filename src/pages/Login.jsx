@@ -1,26 +1,9 @@
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { Sprout, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
-import { loginSucceeded, loginFailed, clearAuthError } from '../store/authSlice'
+import { Sprout, Eye, EyeOff, LockKeyhole, Mail, AlertCircle } from 'lucide-react'
+import { loginUser, clearAuthError } from '../features/auth/authSlice'
 import './Login.css'
-
-const DEMO_USERS = [
-  {
-    id: 'admin-1',
-    name: 'AgriSense Admin',
-    email: 'admin@agrisense.com',
-    password: 'Admin@123',
-    role: 'Admin',
-  },
-  {
-    id: 'manager-1',
-    name: 'Farm Manager',
-    email: 'manager@agrisense.com',
-    password: 'Manager@123',
-    role: 'Manager',
-  },
-]
 
 export default function Login() {
   const dispatch = useDispatch()
@@ -29,51 +12,38 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
+  const [localError, setLocalError] = useState('')
 
-  function fillCredentials(userEmail, userPassword) {
-    setEmail(userEmail)
-    setPassword(userPassword)
-    setError('')
-    dispatch(clearAuthError())
-  }
+  const { loading, error: authError } = useSelector((state) => state.auth || {})
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
-    setError('')
+    setLocalError('')
     dispatch(clearAuthError())
 
     const cleanEmail = (email || '').trim().toLowerCase()
     const cleanPassword = (password || '').trim()
 
-    const matchedUser = DEMO_USERS.find(
-      (user) =>
-        user.email.toLowerCase() === cleanEmail &&
-        (user.password === cleanPassword || user.password.toLowerCase() === cleanPassword.toLowerCase())
-    )
-
-    if (!matchedUser) {
-      const message = 'Invalid email or password.'
-      setError(message)
-      dispatch(loginFailed(message))
+    if (!cleanEmail || !cleanPassword) {
+      setLocalError('Please enter both email and password.')
       return
     }
 
-    const sessionUser = {
-      id: matchedUser.id,
-      name: matchedUser.name,
-      email: matchedUser.email,
-      role: matchedUser.role,
-    }
-
     try {
-      localStorage.setItem('agri_session', JSON.stringify(sessionUser))
-      dispatch(loginSucceeded(sessionUser))
-      navigate('/', { replace: true })
-    } catch {
-      setError('Could not save your session. Please check browser storage.')
+      const result = await dispatch(
+        loginUser({ email: cleanEmail, password: cleanPassword })
+      ).unwrap()
+
+      if (result) {
+        navigate('/', { replace: true })
+      }
+    } catch (err) {
+      // err is string message from rejectWithValue
+      setLocalError(typeof err === 'string' ? err : 'Invalid email or password.')
     }
   }
+
+  const displayedError = localError || authError
 
   return (
     <main className="login-page">
@@ -94,7 +64,7 @@ export default function Login() {
           <p>Manage your farm operations from one place.</p>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <label htmlFor="login-email">Email address</label>
           <div className="login-input-wrap">
             <Mail size={18} />
@@ -102,9 +72,12 @@ export default function Login() {
               id="login-email"
               type="email"
               autoComplete="username"
-              placeholder="you@example.com"
+              placeholder="e.g. manager@agrisense.com"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => {
+                setEmail(event.target.value)
+                if (localError) setLocalError('')
+              }}
               required
             />
           </div>
@@ -118,7 +91,10 @@ export default function Login() {
               autoComplete="current-password"
               placeholder="Enter your password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                setPassword(event.target.value)
+                if (localError) setLocalError('')
+              }}
               required
             />
             <button
@@ -131,50 +107,17 @@ export default function Login() {
             </button>
           </div>
 
-          {error && (
-            <p className="login-error" role="alert">
-              {error}
-            </p>
+          {displayedError && (
+            <div className="login-error" role="alert" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertCircle size={16} />
+              <span>{displayedError}</span>
+            </div>
           )}
 
-          <button className="login-submit" type="submit">
-            Sign in to AgriSense
+          <button className="login-submit" type="submit" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign in to AgriSense'}
           </button>
         </form>
-
-        <div className="demo-credentials">
-          <div className="demo-header">
-            <strong>Demo quick access</strong>
-            <span>Click to fill credentials</span>
-          </div>
-          <div className="demo-grid">
-            <button
-              type="button"
-              className="demo-card-btn"
-              onClick={() => fillCredentials('admin@agrisense.com', 'Admin@123')}
-              title="Click to fill Admin account"
-            >
-              <span className="demo-pill-tag tag-admin">Admin</span>
-              <div className="demo-details">
-                <span className="demo-user-email">admin@agrisense.com</span>
-                <span className="demo-user-pass">Admin@123</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              className="demo-card-btn"
-              onClick={() => fillCredentials('manager@agrisense.com', 'Manager@123')}
-              title="Click to fill Manager account"
-            >
-              <span className="demo-pill-tag tag-manager">Manager</span>
-              <div className="demo-details">
-                <span className="demo-user-email">manager@agrisense.com</span>
-                <span className="demo-user-pass">Manager@123</span>
-              </div>
-            </button>
-          </div>
-        </div>
 
         <p className="login-footer">
           AgriSense · Agriculture Management System

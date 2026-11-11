@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   ResponsiveContainer,
@@ -24,6 +24,10 @@ import {
   maintenanceDeleted,
   maintenanceErrorCleared,
 } from '../store/maintenanceSlice'
+import {
+  fetchMaintenance,
+  fetchEquipment,
+} from '../features/farmOperations/farmOperationsSlice'
 
 const initialForm = {
   equipmentId: '',
@@ -75,16 +79,25 @@ function getStatusClass(status) {
 export default function Maintenance() {
   const dispatch = useDispatch()
 
-  const equipment = useSelector(
-    (state) => state.equipment?.items ?? [],
-  )
+  const {
+    maintenance: apiMaintenance = [],
+    equipment: apiEquipment = [],
+    loading,
+    error: farmError,
+  } = useSelector((state) => state.farmOperations || {})
 
-  const maintenance = useSelector(
-    (state) => state.maintenance?.items ?? [],
+  const legacyEquipment = useSelector(
+    (state) => state.equipment?.items ?? []
   )
+  const equipment = apiEquipment.length > 0 ? apiEquipment : legacyEquipment
+
+  const legacyMaintenance = useSelector(
+    (state) => state.maintenance?.items ?? []
+  )
+  const maintenance = apiMaintenance.length > 0 ? apiMaintenance : legacyMaintenance
 
   const error = useSelector(
-    (state) => state.maintenance?.error ?? null,
+    (state) => state.maintenance?.error ?? null
   )
 
   const [form, setForm] = useState(initialForm)
@@ -92,6 +105,11 @@ export default function Maintenance() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('All')
   const [showForm, setShowForm] = useState(false)
+
+  useEffect(() => {
+    dispatch(fetchMaintenance())
+    dispatch(fetchEquipment())
+  }, [dispatch])
 
   const getEquipmentName = (equipmentId) => {
     const item = equipment.find(
@@ -319,12 +337,12 @@ export default function Maintenance() {
         </div>
       )}
 
-      {error && (
+      {(error || farmError?.maintenance) && (
         <div
           className="alert alert-danger d-flex justify-content-between align-items-center gap-2"
           role="alert"
         >
-          <span>{error}</span>
+          <span>{error || farmError?.maintenance}</span>
           <button
             type="button"
             className="btn-close"
@@ -780,7 +798,14 @@ export default function Maintenance() {
         </div>
 
         <div className="card-body p-0">
-          {filteredMaintenance.length === 0 ? (
+          {loading?.maintenance ? (
+            <div className="text-center py-5 px-3">
+              <div className="spinner-border text-success" role="status">
+                <span className="visually-hidden">Loading maintenance...</span>
+              </div>
+              <p className="text-secondary small mt-3">Loading maintenance from server...</p>
+            </div>
+          ) : filteredMaintenance.length === 0 ? (
             <div className="text-center py-5 px-3">
               <Wrench size={38} className="text-secondary mb-3" />
               <h4 className="h6 fw-bold">No maintenance records found</h4>

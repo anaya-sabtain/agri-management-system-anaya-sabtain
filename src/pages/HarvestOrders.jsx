@@ -47,6 +47,7 @@ import {
   orderUpdated,
   orderDeleted,
 } from '../store/ordersSlice'
+import { fetchOrders } from '../features/orders/orderSlice'
 import { selectUserRole } from '../store/authSlice'
 import { activityAdded } from '../store/activitySlice'
 
@@ -73,7 +74,9 @@ function getStatusBadge(status) {
 
 export default function HarvestOrders() {
   const dispatch = useDispatch()
-  const orders = useSelector(selectAllOrders)
+  const { orders = [], loading, error: reduxError } = useSelector(
+    (state) => state.orders || {}
+  )
   const role = useSelector(selectUserRole)
   const isAdmin = role === 'Admin'
   const [buyers, setBuyers] = useState([]);
@@ -125,7 +128,6 @@ export default function HarvestOrders() {
 
   function loadData() {
     try {
-      dispatch(ordersLoaded(getAll(STORAGE_KEYS.ORDERS)));
       setBuyers(getAll(STORAGE_KEYS.BUYERS));
       setCrops(getAll(STORAGE_KEYS.CROPS));
       setError("");
@@ -136,7 +138,8 @@ export default function HarvestOrders() {
 
   useEffect(() => {
     loadData();
-  }, []);
+    dispatch(fetchOrders());
+  }, [dispatch]);
 
   const buyerById = useMemo(
     () => new Map(buyers.map((buyer) => [buyer.id, buyer])),
@@ -654,7 +657,11 @@ export default function HarvestOrders() {
       </div>
 
       {/* Alerts */}
-      {error && <div className="alert alert-danger mb-4" role="alert">{error}</div>}
+      {(error || reduxError) && (
+        <div className="alert alert-danger mb-4" role="alert">
+          {error || reduxError}
+        </div>
+      )}
       {notice && (
         <div className="alert alert-success d-flex align-items-center gap-2 mb-4" role="status">
           <Sparkles size={18} />
@@ -895,7 +902,14 @@ export default function HarvestOrders() {
 
         {/* Content View */}
         <div className="card-body p-3 p-md-4">
-          {filteredOrders.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-success" role="status">
+                <span className="visually-hidden">Loading orders...</span>
+              </div>
+              <p className="text-secondary small mt-3">Loading orders from server...</p>
+            </div>
+          ) : filteredOrders.length === 0 ? (
             <div className="text-center py-5">
               <ShoppingCart size={44} className="text-success opacity-50 mb-3" />
               <h3 className="h6 fw-bold">

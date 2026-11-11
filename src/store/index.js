@@ -1,15 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit'
 
 import counterReducer from './counterSlice'
-import cropsReducer from './cropsSlice'
-import buyersReducer from './buyersSlice'
-import ordersReducer from './ordersSlice'
-import authReducer from './authSlice'
+import cropReducer from '../features/crops/cropSlice'
+import buyerReducer from '../features/buyers/buyerSlice'
+import orderReducer from '../features/orders/orderSlice'
+import authReducer from '../features/auth/authSlice'
 import weatherReducer from './weatherSlice'
-import tasksReducer from './tasksSlice'
-import expensesReducer from './expensesSlice'
-import inventoryReducer from './inventorySlice'
-import activityReducer from './activitySlice'
+import taskReducer from '../features/tasks/taskSlice'
+import expenseReducer from '../features/expenses/expenseSlice'
+import inventoryReducer from '../features/inventory/inventorySlice'
+import farmOperationsReducer from '../features/farmOperations/farmOperationsSlice'
+import activityReducer from '../features/activities/activitySlice'
+import legacyActivityReducer from './activitySlice'
 import workersReducer from './workersSlice'
 import attendanceReducer from './attendanceSlice'
 import equipmentReducer from './equipmentSlice'
@@ -17,60 +19,6 @@ import maintenanceReducer from './maintenanceSlice'
 import { persistenceMiddleware } from './persistenceMiddleware'
 import { STORAGE_KEYS } from '../data/dataModels'
 import { getAll } from '../services/storageService'
-
-function loadSavedCrops() {
-  try {
-    return getAll(STORAGE_KEYS.CROPS)
-  } catch (error) {
-    console.error('Could not load saved crops:', error)
-    return []
-  }
-}
-
-function loadSavedBuyers() {
-  try {
-    return getAll(STORAGE_KEYS.BUYERS)
-  } catch (error) {
-    console.error('Could not load saved buyers:', error)
-    return []
-  }
-}
-
-function loadSavedOrders() {
-  try {
-    return getAll(STORAGE_KEYS.ORDERS)
-  } catch (error) {
-    console.error('Could not load saved orders:', error)
-    return []
-  }
-}
-
-function loadSavedTasks() {
-  try {
-    return getAll(STORAGE_KEYS.TASKS)
-  } catch (error) {
-    console.error('Could not load saved tasks:', error)
-    return []
-  }
-}
-
-function loadSavedExpenses() {
-  try {
-    return getAll(STORAGE_KEYS.EXPENSES)
-  } catch (error) {
-    console.error('Could not load saved expenses:', error)
-    return []
-  }
-}
-
-function loadSavedInventory() {
-  try {
-    return getAll(STORAGE_KEYS.INVENTORY)
-  } catch (error) {
-    console.error('Could not load saved inventory:', error)
-    return []
-  }
-}
 
 function loadSavedWorkers() {
   try {
@@ -124,15 +72,17 @@ function loadSavedMaintenance() {
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
-    crops: cropsReducer,
-    buyers: buyersReducer,
-    orders: ordersReducer,
+    crops: cropReducer,
+    buyers: buyerReducer,
+    orders: orderReducer,
     auth: authReducer,
     weather: weatherReducer,
-    tasks: tasksReducer,
-    expenses: expensesReducer,
+    tasks: taskReducer,
+    expenses: expenseReducer,
     inventory: inventoryReducer,
-    activity: activityReducer,
+    farmOperations: farmOperationsReducer,
+    activity: legacyActivityReducer,
+    activities: activityReducer,
     workers: workersReducer,
     attendance: attendanceReducer,
     equipment: equipmentReducer,
@@ -140,30 +90,6 @@ export const store = configureStore({
   },
 
   preloadedState: {
-    crops: {
-      items: loadSavedCrops(),
-      error: null,
-    },
-    buyers: {
-      items: loadSavedBuyers(),
-      error: null,
-    },
-    orders: {
-      items: loadSavedOrders(),
-      error: null,
-    },
-    tasks: {
-      items: loadSavedTasks(),
-      error: null,
-    },
-    expenses: {
-      items: loadSavedExpenses(),
-      error: null,
-    },
-    inventory: {
-      items: loadSavedInventory(),
-      error: null,
-    },
     activity: {
       items: loadSavedActivity(),
       error: null,

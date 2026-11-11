@@ -44,6 +44,7 @@ import {
   buyerUpdated,
   buyerDeleted,
 } from '../store/buyersSlice'
+import { fetchBuyers } from '../features/buyers/buyerSlice'
 import { selectUserRole } from '../store/authSlice'
 import { activityAdded } from '../store/activitySlice'
 
@@ -68,7 +69,9 @@ function normalizeCnic(value) {
 
 export default function Buyers() {
   const dispatch = useDispatch()
-  const buyers = useSelector(selectAllBuyers)
+  const { buyers = [], loading, error: reduxError } = useSelector(
+    (state) => state.buyers || {}
+  )
   const role = useSelector(selectUserRole)
   const isAdmin = role === 'Admin'
   const [orders, setOrders] = useState([]);
@@ -118,7 +121,6 @@ export default function Buyers() {
 
   function loadData() {
     try {
-      dispatch(buyersLoaded(getAll(STORAGE_KEYS.BUYERS)))
       setOrders(getAll(STORAGE_KEYS.ORDERS));
       setError("");
     } catch (err) {
@@ -128,7 +130,8 @@ export default function Buyers() {
 
   useEffect(() => {
     loadData();
-  }, []);
+    dispatch(fetchBuyers());
+  }, [dispatch]);
 
   // Summary Metrics
   const metrics = useMemo(() => {
@@ -568,7 +571,7 @@ export default function Buyers() {
       </div>
 
       {/* Alerts */}
-      {error && <div className="alert alert-danger mb-4" role="alert">{error}</div>}
+      {(error || reduxError) && <div className="alert alert-danger mb-4" role="alert">{error || reduxError}</div>}
       {notice && (
         <div className="alert alert-success d-flex align-items-center gap-2 mb-4" role="status">
           <Sparkles size={18} />
@@ -751,7 +754,14 @@ export default function Buyers() {
 
         {/* Content View */}
         <div className="card-body p-3 p-md-4">
-          {filteredBuyers.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-success" role="status">
+                <span className="visually-hidden">Loading buyers...</span>
+              </div>
+              <p className="text-secondary small mt-3">Loading buyers from server...</p>
+            </div>
+          ) : filteredBuyers.length === 0 ? (
             <div className="text-center py-5">
               <Users size={44} className="text-success opacity-50 mb-3" />
               <h3 className="h6 fw-bold">

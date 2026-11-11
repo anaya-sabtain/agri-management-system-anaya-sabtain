@@ -2,6 +2,7 @@ import { createSlice, nanoid } from '@reduxjs/toolkit'
 
 const initialState = {
   items: [],
+  buyers: [],
   error: null,
 }
 
@@ -19,7 +20,6 @@ const buyersSlice = createSlice({
         return {
           payload: {
             id: nanoid(),
-            createdAt: new Date().toISOString(),
             ...buyerData,
           },
         }
@@ -28,7 +28,10 @@ const buyersSlice = createSlice({
 
     buyerUpdated(state, action) {
       const { id, changes } = action.payload
-      const index = state.items.findIndex((buyer) => buyer.id === id)
+
+      const index = state.items.findIndex(
+        (buyer) => buyer.id === id,
+      )
 
       if (index !== -1) {
         state.items[index] = {
@@ -66,9 +69,10 @@ export const {
   buyersErrorSet,
 } = buyersSlice.actions
 
-export const selectAllBuyers = (state) => state.buyers.items
+export const selectAllBuyers = (state) =>
+  state.buyers?.buyers || state.buyers?.items || []
 
 export const selectBuyerById = (state, buyerId) =>
-  state.buyers.items.find((buyer) => buyer.id === buyerId)
+  (state.buyers?.buyers || state.buyers?.items || []).find((buyer) => buyer.id === buyerId)
 
 export default buyersSlice.reducer

@@ -2,12 +2,14 @@ import { createSlice, nanoid } from '@reduxjs/toolkit'
 
 const initialState = {
   items: [],
+  orders: [],
   error: null,
 }
 
 const ordersSlice = createSlice({
   name: 'orders',
   initialState,
+
   reducers: {
     orderAdded: {
       reducer(state, action) {
@@ -18,7 +20,6 @@ const ordersSlice = createSlice({
         return {
           payload: {
             id: nanoid(),
-            createdAt: new Date().toISOString(),
             ...orderData,
           },
         }
@@ -27,7 +28,10 @@ const ordersSlice = createSlice({
 
     orderUpdated(state, action) {
       const { id, changes } = action.payload
-      const index = state.items.findIndex((order) => order.id === id)
+
+      const index = state.items.findIndex(
+        (order) => order.id === id,
+      )
 
       if (index !== -1) {
         state.items[index] = {
@@ -41,7 +45,7 @@ const ordersSlice = createSlice({
 
     orderDeleted(state, action) {
       state.items = state.items.filter(
-        (order) => order.id !== action.payload
+        (order) => order.id !== action.payload,
       )
       state.error = null
     },
@@ -52,10 +56,10 @@ const ordersSlice = createSlice({
     },
 
     ordersBackfilledRates(state, action) {
-      const rates = action.payload || {}
+      const ratesByCrop = action.payload
       state.items = state.items.map((order) => {
-        if (!order.pricePerKg || Number(order.pricePerKg) <= 0) {
-          const rate = rates[order.id] || 100
+        if (!order.pricePerKg || order.pricePerKg <= 0) {
+          const rate = ratesByCrop[order.cropName] || 0
           return {
             ...order,
             pricePerKg: rate,
@@ -81,9 +85,10 @@ export const {
   ordersErrorSet,
 } = ordersSlice.actions
 
-export const selectAllOrders = (state) => state.orders.items
+export const selectAllOrders = (state) =>
+  state.orders?.orders || state.orders?.items || []
 
 export const selectOrderById = (state, orderId) =>
-  state.orders.items.find((order) => order.id === orderId)
+  (state.orders?.orders || state.orders?.items || []).find((order) => order.id === orderId)
 
 export default ordersSlice.reducer

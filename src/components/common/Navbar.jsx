@@ -14,7 +14,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTheme } from '../../context/ThemeContext'
-import { logoutSucceeded, selectCurrentUser } from '../../store/authSlice'
+import { logout, selectCurrentUser } from '../../features/auth/authSlice'
 
 const pageTitles = {
   '/': 'Dashboard',
@@ -57,8 +57,7 @@ export default function Navbar({ onMenuClick, alertsCount = 0, onOpenAlerts }) {
   }, [])
 
   function handleLogout() {
-    localStorage.removeItem('agri_session')
-    dispatch(logoutSucceeded())
+    dispatch(logout())
     navigate('/login', { replace: true })
   }
 

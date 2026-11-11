@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   Search,
@@ -24,6 +24,7 @@ import {
   workerDeleted,
   selectAllWorkers,
 } from '../store/workersSlice'
+import { fetchWorkers } from '../features/farmOperations/farmOperationsSlice'
 
 const EMPTY_FORM = {
   fullName: '',
@@ -46,7 +47,11 @@ const normalizeCNIC = (value) => value.replace(/\D/g, '')
 
 export default function Workers() {
   const dispatch = useDispatch()
-  const workers = useSelector(selectAllWorkers)
+  const { workers: apiWorkers = [], loading, error: farmError } = useSelector(
+    (state) => state.farmOperations || {}
+  )
+  const legacyWorkers = useSelector(selectAllWorkers)
+  const workers = apiWorkers.length > 0 ? apiWorkers : legacyWorkers
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -54,6 +59,10 @@ export default function Workers() {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    dispatch(fetchWorkers())
+  }, [dispatch])
 
   const activeCount = workers.filter(
     (worker) => worker.status === 'active',
@@ -376,6 +385,12 @@ export default function Workers() {
         </div>
       </div>
 
+      {(error || farmError?.workers) && (
+        <div className="alert alert-danger mb-4" role="alert">
+          {error || farmError?.workers}
+        </div>
+      )}
+
       <section className="card border-0 shadow-sm">
         <div className="card-body border-bottom">
           <div className="row g-3">
@@ -425,7 +440,18 @@ export default function Workers() {
             </thead>
 
             <tbody>
-              {filteredWorkers.map((worker) => (
+              {loading?.workers && (
+                <tr>
+                  <td colSpan={7} className="text-center py-5">
+                    <div className="spinner-border text-success" role="status">
+                      <span className="visually-hidden">Loading workers...</span>
+                    </div>
+                    <p className="text-secondary small mt-3">Loading workers from server...</p>
+                  </td>
+                </tr>
+              )}
+
+              {!loading?.workers && filteredWorkers.map((worker) => (
                 <tr key={worker.id}>
                   <td className="ps-4">
                     <div className="fw-semibold">{worker.fullName}</div>
@@ -480,7 +506,7 @@ export default function Workers() {
                 </tr>
               ))}
 
-              {filteredWorkers.length === 0 && (
+              {!loading?.workers && filteredWorkers.length === 0 && (
                 <tr>
                   <td colSpan={7} className="text-center py-5">
                     <Users size={32} className="text-secondary mb-2" />

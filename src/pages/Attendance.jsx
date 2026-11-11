@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   ResponsiveContainer,
@@ -23,6 +23,10 @@ import {
   attendanceUpdated,
   attendanceDeleted,
 } from '../store/attendanceSlice'
+import {
+  fetchAttendance,
+  fetchWorkers,
+} from '../features/farmOperations/farmOperationsSlice'
 
 import { selectAllWorkers } from '../store/workersSlice'
 
@@ -63,10 +67,19 @@ const emptyForm = {
 export default function Attendance() {
   const dispatch = useDispatch()
 
-  const workers = useSelector(selectAllWorkers)
-  const attendance = useSelector(
+  const legacyWorkers = useSelector(selectAllWorkers)
+  const {
+    attendance: apiAttendance = [],
+    workers: apiWorkers = [],
+    loading,
+    error: farmError,
+  } = useSelector((state) => state.farmOperations || {})
+
+  const workers = apiWorkers.length > 0 ? apiWorkers : legacyWorkers
+  const legacyAttendance = useSelector(
     (state) => state.attendance?.items ?? []
   )
+  const attendance = apiAttendance.length > 0 ? apiAttendance : legacyAttendance
 
   const [form, setForm] = useState({ ...emptyForm })
   const [search, setSearch] = useState('')
@@ -74,6 +87,11 @@ export default function Attendance() {
   const [filterStatus, setFilterStatus] = useState('all')
   const [error, setError] = useState('')
   const [editingId, setEditingId] = useState(null)
+
+  useEffect(() => {
+    dispatch(fetchAttendance())
+    dispatch(fetchWorkers())
+  }, [dispatch])
 
   const workerMap = useMemo(
     () => new Map(workers.map((worker) => [worker.id, worker])),
@@ -538,6 +556,12 @@ export default function Attendance() {
         </div>
       </div>
 
+      {(error || farmError?.attendance) && (
+        <div className="alert alert-danger mb-4" role="alert">
+          {error || farmError?.attendance}
+        </div>
+      )}
+
       <div className="row g-4">
         <div className="col-12 col-xl-4">
           <div className="card border-0 shadow-sm h-100">
@@ -756,7 +780,14 @@ export default function Attendance() {
                 </div>
               </div>
 
-              {filteredAttendance.length === 0 ? (
+              {loading?.attendance ? (
+                <div className="text-center py-5">
+                  <div className="spinner-border text-success" role="status">
+                    <span className="visually-hidden">Loading attendance...</span>
+                  </div>
+                  <p className="text-secondary small mt-3">Loading attendance from server...</p>
+                </div>
+              ) : filteredAttendance.length === 0 ? (
                 <div className="text-center py-5">
                   <CalendarCheck
                     size={36}

@@ -2,6 +2,7 @@ import { createSlice, nanoid } from '@reduxjs/toolkit'
 
 const initialState = {
   items: [],
+  tasks: [],
   error: null,
 }
 
@@ -67,9 +68,10 @@ export const {
   tasksErrorSet,
 } = tasksSlice.actions
 
-export const selectAllTasks = (state) => state.tasks.items
+export const selectAllTasks = (state) =>
+  state.tasks?.tasks || state.tasks?.items || []
 
 export const selectTaskById = (state, taskId) =>
-  state.tasks.items.find((task) => task.id === taskId)
+  (state.tasks?.tasks || state.tasks?.items || []).find((task) => task.id === taskId)
 
 export default tasksSlice.reducer

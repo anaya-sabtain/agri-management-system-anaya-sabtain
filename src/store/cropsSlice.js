@@ -2,6 +2,7 @@ import { createSlice, nanoid } from '@reduxjs/toolkit'
 
 const initialState = {
   items: [],
+  crops: [],
   error: null,
 }
 
@@ -68,9 +69,10 @@ export const {
   cropsErrorSet,
 } = cropsSlice.actions
 
-export const selectAllCrops = (state) => state.crops.items
+export const selectAllCrops = (state) =>
+  state.crops?.crops || state.crops?.items || []
 
 export const selectCropById = (state, cropId) =>
-  state.crops.items.find((crop) => crop.id === cropId)
+  (state.crops?.crops || state.crops?.items || []).find((crop) => crop.id === cropId)
 
 export default cropsSlice.reducer

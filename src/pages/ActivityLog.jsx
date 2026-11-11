@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   ResponsiveContainer,
@@ -18,6 +18,7 @@ import {
   selectAllActivities,
   activityCleared,
 } from '../store/activitySlice'
+import { fetchActivities } from '../features/activities/activitySlice'
 
 const formatDate = (timestamp) => {
   const date = new Date(timestamp)
@@ -29,10 +30,18 @@ const formatDate = (timestamp) => {
 
 export default function ActivityLog() {
   const dispatch = useDispatch()
-  const activities = useSelector(selectAllActivities)
+  const { activities: apiActivities = [], loading, error } = useSelector(
+    (state) => state.activities || {}
+  )
+  const legacyActivities = useSelector(selectAllActivities)
+  const activities = apiActivities.length > 0 ? apiActivities : legacyActivities
 
   const [search, setSearch] = useState('')
   const [actionFilter, setActionFilter] = useState('All')
+
+  useEffect(() => {
+    dispatch(fetchActivities())
+  }, [dispatch])
 
   const filteredActivities = useMemo(() => {
     return activities.filter((item) => {
@@ -86,6 +95,12 @@ export default function ActivityLog() {
           Clear Log
         </button>
       </div>
+
+      {error && (
+        <div className="alert alert-danger mb-4" role="alert">
+          {error}
+        </div>
+      )}
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-md-6">
@@ -252,7 +267,16 @@ export default function ActivityLog() {
         </div>
 
         <div className="list-group list-group-flush">
-          {filteredActivities.map((item) => (
+          {loading && (
+            <div className="text-center py-5 px-3">
+              <div className="spinner-border text-success" role="status">
+                <span className="visually-hidden">Loading activity logs...</span>
+              </div>
+              <p className="text-secondary small mt-3">Loading activity logs from server...</p>
+            </div>
+          )}
+
+          {!loading && filteredActivities.map((item) => (
             <div
               className="list-group-item p-3 p-md-4"
               key={item.id}
@@ -295,7 +319,7 @@ export default function ActivityLog() {
             </div>
           ))}
 
-          {filteredActivities.length === 0 && (
+          {!loading && filteredActivities.length === 0 && (
             <div className="text-center py-5 px-3">
               <Activity size={34} className="text-secondary mb-2" />
               <h2 className="h6 fw-bold">No activities found</h2>

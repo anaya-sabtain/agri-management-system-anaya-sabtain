@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   ResponsiveContainer,
@@ -22,6 +22,7 @@ import {
   equipmentUpdated,
   equipmentDeleted,
 } from '../store/equipmentSlice'
+import { fetchEquipment } from '../features/farmOperations/farmOperationsSlice'
 
 import { selectAllMaintenance } from '../store/maintenanceSlice'
 
@@ -58,10 +59,17 @@ function getStatusClass(status) {
 export default function Equipment() {
   const dispatch = useDispatch()
 
-  const equipment = useSelector(
+  const {
+    equipment: apiEquipment = [],
+    loading,
+    error: farmError,
+  } = useSelector((state) => state.farmOperations || {})
+
+  const legacyEquipment = useSelector(
     (state) => state.equipment?.items ?? []
   )
 
+  const equipment = apiEquipment.length > 0 ? apiEquipment : legacyEquipment
   const maintenance = useSelector(selectAllMaintenance)
 
   const [form, setForm] = useState({ ...EMPTY_FORM })
@@ -69,6 +77,10 @@ export default function Equipment() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    dispatch(fetchEquipment())
+  }, [dispatch])
 
   const maintenanceCountByEquipment = useMemo(() => {
     const counts = {}
@@ -479,6 +491,12 @@ export default function Equipment() {
         </div>
       </div>
 
+      {(error || farmError?.equipment) && (
+        <div className="alert alert-danger mb-4" role="alert">
+          {error || farmError?.equipment}
+        </div>
+      )}
+
       <div className="row g-4">
         <div className="col-12 col-xl-4">
           <div className="card border-0 shadow-sm">
@@ -676,7 +694,14 @@ export default function Equipment() {
                 </div>
               </div>
 
-              {filteredEquipment.length === 0 ? (
+              {loading?.equipment ? (
+                <div className="text-center py-5">
+                  <div className="spinner-border text-success" role="status">
+                    <span className="visually-hidden">Loading equipment...</span>
+                  </div>
+                  <p className="text-secondary small mt-3">Loading equipment from server...</p>
+                </div>
+              ) : filteredEquipment.length === 0 ? (
                 <div className="text-center py-5">
                   <Tractor size={38} className="text-secondary mb-3" />
                   <h3 className="h6 fw-bold">No equipment found</h3>

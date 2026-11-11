@@ -1,7 +1,28 @@
-import { createSlice, nanoid } from '@reduxjs/toolkit'
+import { createSlice, nanoid, createAsyncThunk } from '@reduxjs/toolkit'
+import api from '../services/api'
+
+export const fetchActivities = createAsyncThunk(
+  'activities/fetchActivities',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/activities')
+
+      if (!response.data.succeeded) {
+        return rejectWithValue(response.data.message)
+      }
+
+      return response.data.data
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Failed to fetch activities.'
+      )
+    }
+  }
+)
 
 const initialState = {
   items: [],
+  loading: false,
   error: null,
 }
 
@@ -53,6 +74,22 @@ const activitySlice = createSlice({
     activityErrorSet(state, action) {
       state.error = action.payload
     },
+  },
+
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchActivities.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(fetchActivities.fulfilled, (state, action) => {
+        state.loading = false
+        state.items = action.payload
+      })
+      .addCase(fetchActivities.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
   },
 })
 
